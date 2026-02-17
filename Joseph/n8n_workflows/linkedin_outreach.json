@@ -1,0 +1,1866 @@
+{
+  "name": "[PROD] LinkedIn FollowUps",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You will receive a block of output from Phantombuster (either as a string log or JSON). Based on this, return a single string: either `\"Success\"` or `\"Fail\"`.\n\nRules to follow:\n1. If the log contains `✅ Message sent to`, treat it as a **\"Success\"**.\n2. If the output contains phrases like:\n   - `⚠ Error`\n   - `❌ Error`\n   - `Missing Send button`\n   - `No message will be sent`\n   - `Process finished with an error`\n   Then it should be treated as a **\"Fail\"**.\n3. If the `exit code` at the end is `0`, it generally means **Success**, and if it is `1` or non-zero, it indicates **Fail**, unless overridden by a known message sent confirmation.\n4. If the output is in JSON format, also check `resultObject` or `data.output` for `\"error\"` fields.\n\nGive output in only `\"Success\"` or `\"Fail\"` with no additional text.\n\nData from PhantomBuster : {{ $json.output }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        2020,
+        1660
+      ],
+      "id": "439ef860-b7e0-43ba-b064-e01774bce685",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1860,
+        1860
+      ],
+      "id": "e40ddea9-eca8-4420-aa2a-ea6e699b20ae",
+      "name": "Google Gemini Chat Model"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.phantombuster.com/api/v1/agent/6675734259865091/launch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Phantombuster-Key-1"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1280,
+        1640
+      ],
+      "id": "7b0e1146-8775-437e-9ac1-fe72f0688de2",
+      "name": "Send Messages",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        300,
+        1480
+      ],
+      "id": "d68bc07e-b167-41f1-b340-6878865d1f3b",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "eb3bc427-43fa-4000-93cb-c7e40d39a5c4",
+              "leftValue": "={{ $json[\"Linkedin Connection Request Sent?\"] }}",
+              "rightValue": "=Pending",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        1600
+      ],
+      "id": "80a8bc4a-49e2-4299-8415-a14529fd396d",
+      "name": "Linkedin Connected or Not"
+    },
+    {
+      "parameters": {
+        "amount": 1.5,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1500,
+        1480
+      ],
+      "id": "97b6edce-338a-4500-a87a-ecab4601a202",
+      "name": "Wait",
+      "webhookId": "6c48d0f4-2478-491f-890d-85998e91582a"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        480,
+        140
+      ],
+      "id": "10e8b19a-c136-46e5-b773-9456a0be62fb",
+      "name": "Loop Over Items1"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblhgyOLwzilSFUtX",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblhgyOLwzilSFUtX"
+        },
+        "filterByFormula": "NOT({Linkedin Connection Request Sent?})",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        140
+      ],
+      "id": "88196a69-9c49-47c9-b528-f1025f7446d4",
+      "name": "List - LinkedIn To be Connected",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "url": "https://api.phantombuster.com/api/v2/containers/fetch-output",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "id",
+              "value": "5234608494133203"
+            },
+            {
+              "name": "mode",
+              "value": "json"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Phantombuster-Key"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1700,
+        1480
+      ],
+      "id": "5737e553-b05b-45f3-bab0-88b88a4514f7",
+      "name": "Output from Container",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -660,
+        480
+      ],
+      "id": "c781c02b-4a98-4c32-919e-45556afcd45b",
+      "name": "9am",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 12
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -640,
+        1300
+      ],
+      "id": "0ba25f83-da1e-4aed-8ee7-610a1deabb34",
+      "name": "12pm",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblxyRSG8lofTTxRj",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Queue",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblxyRSG8lofTTxRj"
+        },
+        "filterByFormula": "AND(   IS_SAME(DATETIME_FORMAT({Scheduled Date}, 'YYYY-MM-DD'), TODAY(), 'day'),   NOT({Message Sent?}) )",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        1480
+      ],
+      "id": "edff3480-7558-4ead-b601-6b00a0fb710d",
+      "name": "List - FollowUps",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.phantombuster.com/api/v1/agent/8932109155978483/launch",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Phantombuster-Key-1"
+            },
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1200,
+        160
+      ],
+      "id": "304559fe-84d6-4c11-8bae-f2c6619b34f4",
+      "name": "PB Sending Request",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblhgyOLwzilSFUtX",
+          "mode": "list",
+          "cachedResultName": "Lead Gen + Enrichment",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblhgyOLwzilSFUtX"
+        },
+        "filterByFormula": "=FIND(\"{{ $json.Email }}\", {Email}) > 0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        680,
+        940
+      ],
+      "id": "f78fca0d-8b36-4504-8084-e409d69475b7",
+      "name": "Getting Data for the Email"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "[\n  {\n    \"message\":\"\"\n  }\n]"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1620,
+        1060
+      ],
+      "id": "8e502f37-e54d-4155-b859-629e4fb5cdb1",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblULCxph4qyRY5Le",
+          "mode": "list",
+          "cachedResultName": "Settings",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblULCxph4qyRY5Le"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        740
+      ],
+      "id": "5056345f-01fb-442a-a45d-3716c7fcbb42",
+      "name": "Get Settings Record"
+    },
+    {
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblULCxph4qyRY5Le",
+          "mode": "list",
+          "cachedResultName": "Settings",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblULCxph4qyRY5Le"
+        },
+        "id": "={{ $json.id }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        800,
+        740
+      ],
+      "id": "279f8068-ac2b-4f1b-a1d2-84c2db76a54d",
+      "name": "Settings"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.1,
+      "position": [
+        1020,
+        840
+      ],
+      "id": "11697633-46fe-4e11-856a-28ec594bf772",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        840
+      ],
+      "id": "12858678-7c5d-4646-bf74-db95aade6974",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "jsCode": "const settings = $('Aggregate').first().json.data[0];\nconst lead = $('Aggregate').first().json.data[1];\n\n// Parse values\nconst numFollowUps = Number(settings.Count); // e.g., 4\nconst gaps = JSON.parse(settings.Gaps);      // e.g., [0,2,3,2]\n\nif (gaps.length !== numFollowUps) {\n  throw new Error(\"Mismatch: gap length doesn't match numFollowUps\");\n}\n\n// Helper: add N days to today\nconst addDays = (baseDate, days) => {\n  const result = new Date(baseDate);\n  result.setDate(result.getDate() + days);\n  return result.toISOString();\n};\n\nconst baseDate = new Date();\nbaseDate.setDate(baseDate.getDate() + 1); // Start from tomorrow\n\nlet cumulativeGap = 0;\nconst output = [];\n\nfor (let stage = 0; stage < numFollowUps; stage++) {\n  cumulativeGap += gaps[stage]; // accumulate stage-wise gaps\n\n  output.push({\n    \"LinkedIn Profile\": $('Aggregate').first().json.data[1][\"LinkedIn URL\"],\n    \"Message\": $input.first().json.output[stage].message, // Your message body\n    \"Stage\": stage,\n    \"Scheduled Date\": addDays(baseDate, cumulativeGap),\n    \"Sent?\": false\n  });\n}\n\nreturn output;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        840
+      ],
+      "id": "0428e061-71c4-4dd9-a72f-d60908661009",
+      "name": "Queue"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblhgyOLwzilSFUtX",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblhgyOLwzilSFUtX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Aggregate').first().json.data[1].Email }}",
+            "LinkedIn FollowUps?": true
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email FollowUps Created?",
+              "displayName": "Email FollowUps Created?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Linkedin Connection Request Sent?",
+              "displayName": "Linkedin Connection Request Sent?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "LinkedIn FollowUps?",
+              "displayName": "LinkedIn FollowUps?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Designation",
+              "displayName": "Designation",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Enriched Summary",
+              "displayName": "Enriched Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2500,
+        980
+      ],
+      "id": "a081016e-5cca-4e66-9eb6-5387a6a4d5b7",
+      "name": "Update Lead Table"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2280,
+        840
+      ],
+      "id": "4eaa4e61-ba01-42df-a5cd-b54a621f4ae4",
+      "name": "Sync in 1"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblhgyOLwzilSFUtX",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblhgyOLwzilSFUtX"
+        },
+        "filterByFormula": "AND(   NOT({LinkedIn FollowUps?}),   {LinkedIn Connection Request Sent?} )",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        40,
+        860
+      ],
+      "id": "9d7cef52-abb5-4bbd-a90b-3ce72ce4baaf",
+      "name": "List - FollowUps to create"
+    },
+    {
+      "parameters": {
+        "content": "# Add Linkedin FollowUps Queue",
+        "height": 780,
+        "width": 2780,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        520
+      ],
+      "typeVersion": 1,
+      "id": "03c83bae-6771-4822-bf32-8cd1bd027e06",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-1.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        1060
+      ],
+      "id": "f07fc415-f0dc-4f01-a56d-17ed89af570e",
+      "name": "Google Gemini Chat Model1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        260,
+        860
+      ],
+      "id": "71404c6f-42b5-418f-8168-27043adca623",
+      "name": "Loop Over Items2"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -660,
+        860
+      ],
+      "id": "20b0a612-58bd-4e4e-9aca-220cf3522fc4",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create {{ $json.data[0].Count }} thoughtful LinkedIn follow-up messages (array of { message }) \nto engage the following lead:\n\n- Full Name: {{ $json.data[1][\"Full Name\"] }}\n- Designation: {{ $json.data[1].Designation }}\n- Company Name: {{ $json.data[1][\"Company Name\"] }}\n\nBackground Summary:\n{{ $json.data[1][\"Enriched Summary\"] }}\n\nInstructions:\n• Assume this is a cold outreach on LinkedIn.\n• Each message should feel like a casual, human follow-up — not a pitch.\n• Vary your tone and approach: curiosity, shared interest, value nudge, social proof, light CTA, etc.\n• First message should feel like a natural intro and connection request.\n• Messages should build subtly on one another (don’t repeat the same idea).\n• Final message should be graceful — leave the door open without pressure.\n• Keep it conversational, concise (2-3 lines max), and crafted for a mobile LinkedIn experience.\n• Use simple markdown (no HTML).\n\nOutput format:\n```json\n[\n  { \"message\": \"...\" },\n  { \"message\": \"...\" },\n  ...\n]\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a world-class outbound copywriter specializing in cold LinkedIn outreach.\nYou craft thoughtful, human-sounding LinkedIn messages that start conversations with senior decision-makers.\nEach follow-up message builds familiarity and trust — without being pushy or salesy.\nYou understand how to blend relevance, curiosity, and subtle value in 2-3 sentences.\nYour tone is warm, professional, and natural — never robotic or scripted.\nYou use social cues, contextual details, and gentle prompts to spark a reply, even with zero brand context.\n\nyaml\nCopy\nEdit\n\n---\n\nLet me know if you want to customize tone further (e.g., more playful, formal, domain-specific) or if you want a ready-to-use example."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        1460,
+        840
+      ],
+      "id": "fefb4df4-ab3d-44da-b10f-5390fc053c3f",
+      "name": "Generate Followups"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "id"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblxyRSG8lofTTxRj",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Stage": "={{ $json.Stage }}",
+            "Scheduled Date": "={{ $json[\"Scheduled Date\"].split(\"T\")[0] }}",
+            "Review Status": "Not Checked",
+            "Linkedin Profile": "={{ $json[\"LinkedIn Profile\"] }}",
+            "Message": "={{ $json.Message }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Linkedin Profile",
+              "displayName": "Linkedin Profile",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Review Status",
+              "displayName": "Review Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Not Checked",
+                  "value": "Not Checked"
+                },
+                {
+                  "name": "Pass",
+                  "value": "Pass"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message Sent?",
+              "displayName": "Message Sent?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message Status",
+              "displayName": "Message Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2060,
+        840
+      ],
+      "id": "0f7e5519-a33d-490c-a649-956642c5d761",
+      "name": "LinkedIn Queue Added"
+    },
+    {
+      "parameters": {
+        "content": "# Send Connection Request\n",
+        "height": 460,
+        "width": 2160,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "id": "7ad45fa7-ba01-4c4f-a8f5-1feb618edaff",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "# Send Linkedin Message from Queue\n",
+        "height": 760,
+        "width": 2640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1380
+      ],
+      "typeVersion": 1,
+      "id": "21db12e4-e007-4c45-a81a-cbaf443e2d81",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1eONuX5plu3BRPWxSGP7THpekpFm_ut2ihHuXMpgVLkQ",
+          "mode": "list",
+          "cachedResultName": "Sample Data",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eONuX5plu3BRPWxSGP7THpekpFm_ut2ihHuXMpgVLkQ/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eONuX5plu3BRPWxSGP7THpekpFm_ut2ihHuXMpgVLkQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Linkedin URL": "={{ $json[\"LinkedIn URL\"] }}"
+          },
+          "matchingColumns": [
+            "Linkedin URL"
+          ],
+          "schema": [
+            {
+              "id": "Linkedin URL",
+              "displayName": "Linkedin URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        960,
+        160
+      ],
+      "id": "2fbbadd0-ef90-450d-8115-42c190f9153d",
+      "name": "LinkedIn Profiles"
+    },
+    {
+      "parameters": {
+        "operation": "clear",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/1eONuX5plu3BRPWxSGP7THpekpFm_ut2ihHuXMpgVLkQ/edit?gid=0#gid=0",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eONuX5plu3BRPWxSGP7THpekpFm_ut2ihHuXMpgVLkQ/edit#gid=0"
+        },
+        "clear": "specificRows",
+        "startIndex": 2,
+        "rowsToDelete": 10
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        740,
+        160
+      ],
+      "id": "1111de96-f061-480f-bf1a-e850cf949fd8",
+      "name": "Google Sheets1"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblhgyOLwzilSFUtX",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblhgyOLwzilSFUtX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Linkedin Connection Request Sent?": true,
+            "Email": "={{ $('Loop Over Items1').item.json.Email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": true
+            },
+            {
+              "id": "Full Name",
+              "displayName": "Full Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Email FollowUps Created?",
+              "displayName": "Email FollowUps Created?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Linkedin Connection Request Sent?",
+              "displayName": "Linkedin Connection Request Sent?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "LinkedIn FollowUps?",
+              "displayName": "LinkedIn FollowUps?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Designation",
+              "displayName": "Designation",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Company Name",
+              "displayName": "Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "LinkedIn URL",
+              "displayName": "LinkedIn URL",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Enriched Summary",
+              "displayName": "Enriched Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Confidence",
+              "displayName": "Confidence",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Phone Number",
+              "displayName": "Phone Number",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Location",
+              "displayName": "Location",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1960,
+        240
+      ],
+      "id": "e4872577-d8a9-44c9-b41e-7cd6b28c8892",
+      "name": "Connection Req Check"
+    },
+    {
+      "parameters": {
+        "amount": 2,
+        "unit": "minutes"
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1560,
+        140
+      ],
+      "id": "19185552-ca55-449c-a8f8-c3eeb71a858f",
+      "name": "2 min Wait",
+      "webhookId": "6c48d0f4-2478-491f-890d-85998e91582a"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1bc0pP0sIqy6NrFkHc1wgOkYbmM87nHfLQhdYnvUV4WU",
+          "mode": "list",
+          "cachedResultName": "Linkedin URL + Message",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1bc0pP0sIqy6NrFkHc1wgOkYbmM87nHfLQhdYnvUV4WU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1eONuX5plu3BRPWxSGP7THpekpFm_ut2ihHuXMpgVLkQ/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Linkedin URL": "={{ $('Loop Over Items').item.json[\"Linkedin Profile\"] }}"
+          },
+          "matchingColumns": [
+            "Linkedin URL"
+          ],
+          "schema": [
+            {
+              "id": "Linkedin URL",
+              "displayName": "Linkedin URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1060,
+        1640
+      ],
+      "id": "a6758c56-3fbf-4b6b-8077-74f70dd0587f",
+      "name": "Sheet for LinkedIn Messages"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblhgyOLwzilSFUtX",
+          "mode": "list",
+          "cachedResultName": "Leads",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblhgyOLwzilSFUtX"
+        },
+        "filterByFormula": "={LinkedIn URL} = '{{ $json[\"Linkedin Profile\"] }}'",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        520,
+        1600
+      ],
+      "id": "d4c39b0a-e9b8-42f6-9ce6-7112c2221d5a",
+      "name": "Get Linkedin Connected Status"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appuH8A3i4qjRBlXK",
+          "mode": "list",
+          "cachedResultName": "Outreach.ai",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblxyRSG8lofTTxRj",
+          "mode": "list",
+          "cachedResultName": "LinkedIn Queue",
+          "cachedResultUrl": "https://airtable.com/appuH8A3i4qjRBlXK/tblxyRSG8lofTTxRj"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Message Status": "={{$json.output}}",
+            "id": "={{ $('Loop Over Items').first().json.id }}",
+            "Message Sent?": true
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Linkedin Profile",
+              "displayName": "Linkedin Profile",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Review Status",
+              "displayName": "Review Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Not Checked",
+                  "value": "Not Checked"
+                },
+                {
+                  "name": "Pass",
+                  "value": "Pass"
+                }
+              ],
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "number",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message Sent?",
+              "displayName": "Message Sent?",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Message Status",
+              "displayName": "Message Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Scheduled Date",
+              "displayName": "Scheduled Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        2400,
+        1880
+      ],
+      "id": "4d95d6cf-42a6-45d6-b3f8-65e341a45cc3",
+      "name": "Message Status Update"
+    },
+    {
+      "parameters": {
+        "content": "## 🚀 Supercharge Your Workflow with AI  \nNeed a custom automation or expert help with n8n?\n\n**Let’s build it together.**  \n👉 [Book a Free Consultation](https://calendly.com/prakarshgupta)\n",
+        "height": 260,
+        "width": 400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1220,
+        780
+      ],
+      "typeVersion": 1,
+      "id": "97759619-8515-472f-baeb-fa966a49be4c",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Message Status Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Messages": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Linkedin Connected Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Linkedin Connected or Not": {
+      "main": [
+        [
+          {
+            "node": "Sheet for LinkedIn Messages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Output from Container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List - LinkedIn To be Connected": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output from Container": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "9am": {
+      "main": [
+        [
+          {
+            "node": "List - FollowUps to create",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List - LinkedIn To be Connected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "12pm": {
+      "main": [
+        [
+          {
+            "node": "List - FollowUps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List - FollowUps": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PB Sending Request": {
+      "main": [
+        [
+          {
+            "node": "2 min Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Getting Data for the Email": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Generate Followups",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Settings Record": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Generate Followups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queue": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Queue Added",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Table": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync in 1": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List - FollowUps to create": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Followups",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Settings Record",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Getting Data for the Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "List - LinkedIn To be Connected",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List - FollowUps to create",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "List - FollowUps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Followups": {
+      "main": [
+        [
+          {
+            "node": "Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Queue Added": {
+      "main": [
+        [
+          {
+            "node": "Sync in 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Profiles": {
+      "main": [
+        [
+          {
+            "node": "PB Sending Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Connection Req Check": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2 min Wait": {
+      "main": [
+        [
+          {
+            "node": "Connection Req Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheet for LinkedIn Messages": {
+      "main": [
+        [
+          {
+            "node": "Send Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Linkedin Connected Status": {
+      "main": [
+        [
+          {
+            "node": "Linkedin Connected or Not",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Status Update": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "13a95b4b-9815-42f5-8a07-91ccd165cfc4",
+  "meta": {
+    "instanceId": "cf2c5d7364c6cd2e8d2c9a1658f00ce65d45c127100842d8466e2ded0934d747"
+  },
+  "id": "nwYf07ylA12LEM79",
+  "tags": []
+}

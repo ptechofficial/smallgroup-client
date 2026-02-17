@@ -1,0 +1,1548 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "calcom-booking",
+        "options": {}
+      },
+      "id": "75e432c5-d132-43e7-bfb1-fa0202171e3d",
+      "name": "Cal.com Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        7984,
+        12128
+      ],
+      "webhookId": "calcom-booking"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst booking = input.body?.payload || input.payload || input;\n\n// Extract attendee info\nconst attendee = booking.attendees?.[0] || {};\n\n// Parse the call datetime\nconst callDatetime = new Date(booking.startTime);\n\nreturn [{\n  json: {\n    // Lead info\n    name: attendee.name || booking.responses?.name?.value || 'Unknown',\n    email: attendee.email || booking.responses?.email?.value || '',\n    phone: attendee.phoneNumber || booking.responses?.attendeePhoneNumber?.value || '',\n    problem: booking.responses?.['problem-statement']?.value || 'Not specified',\n    \n    // Additional form responses\n    lead_source: booking.responses?.['lead-location']?.value || '',\n    yt_video: booking.responses?.['yt-video']?.value || '',\n    business_website: booking.responses?.['business-website']?.value || '',\n    location: booking.responses?.['location-lead']?.value || '',\n    \n    // Call timing\n    call_datetime: callDatetime.toISOString(),\n    call_datetime_formatted: callDatetime.toLocaleString('en-US', {\n      weekday: 'long',\n      month: 'short',\n      day: 'numeric',\n      hour: 'numeric',\n      minute: '2-digit',\n      timeZoneName: 'short'\n    }),\n    call_time: callDatetime.toLocaleTimeString('en-US', {\n      hour: 'numeric',\n      minute: '2-digit',\n      timeZoneName: 'short'\n    }),\n    call_day: callDatetime.toLocaleDateString('en-US', { weekday: 'long' }),\n    \n    // Meeting link\n    meeting_link: booking.metadata?.videoCallUrl || booking.location || '[MEETING_LINK]',\n    \n    // For scheduling logic\n    hours_until_call: Math.floor((callDatetime - new Date()) / (1000 * 60 * 60)),\n    \n    // Initial stage\n    stage: 'booked'\n  }\n}];\n"
+      },
+      "id": "f9ed4946-03f9-405c-8698-a3ae0580ab10",
+      "name": "Parse Cal.com Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8208,
+        12128
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1250359085,
+          "mode": "list",
+          "cachedResultName": "Sheet8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k/edit#gid=1250359085"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $json.name }}",
+            "Email": "={{ $json.email }}",
+            "Phone": "={{ $json.phone }}",
+            "Problem": "={{ $json.problem }}",
+            "Call Time": "={{ $json.call_datetime }}",
+            "Stage": "={{ $json.stage }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Problem",
+              "displayName": "Problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Call Time",
+              "displayName": "Call Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "44321a2a-32d2-4074-b709-96f3b7afa6ba",
+      "name": "Add Lead to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        8432,
+        12128
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EwCSUq1LduUKt5LT",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Parse Cal.com Data').item.json.email }}",
+        "subject": "You're booked, {{ $json.name }} – here's what to expect",
+        "message": "=<p>Hi {{ $('Parse Cal.com Data').item.json.name }},</p>\n\n<p>Your call is confirmed for <strong>{{ $('Parse Cal.com Data').item.json.call_datetime_formatted }}</strong>.</p>\n\n<p>Here's what we'll cover:</p>\n<ol>\n<li>Deep dive into {{ $('Parse Cal.com Data').item.json.problem }}</li>\n<li>Identify 2-3 high-impact AI automation opportunities</li>\n<li>Map out a realistic implementation roadmap</li>\n<li>See if we're the right fit</li>\n</ol>\n\n<p><strong>To get the most out of our call, come prepared with:</strong></p>\n<ul>\n<li>Rough idea of your monthly revenue or lead volume</li>\n<li>Which manual processes eat most of your time</li>\n</ul>\n\n<p><strong>Meeting link:</strong> <a href=\"{{ $('Parse Cal.com Data').item.json.meeting_link }}\">{{ $('Parse Cal.com Data').item.json.meeting_link }}</a></p>\n\n<p>Talk soon,<br>[YOUR_NAME]</p>\n\n<p>P.S. Here's a 2-min video on how we work: <a href=\"[LOOM_LINK]\">[LOOM_LINK]</a></p>",
+        "options": {}
+      },
+      "id": "c613dd86-ec44-4f26-8ed8-1d81d2c08a8f",
+      "name": "Email 1: Booking Confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        8656,
+        12032
+      ],
+      "webhookId": "e8887b0a-8058-428d-a15c-c6991d61fed0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "prakarshgupta02051@gmail.com",
+        "subject": "=New Call Booked: {{ $('Parse Cal.com Data').item.json.name }}",
+        "emailType": "text",
+        "message": "=NEW LEAD BOOKED\n\nName: {{ $('Parse Cal.com Data').item.json.name }}\nEmail: {{ $('Parse Cal.com Data').item.json.email }}\nPhone: {{ $('Parse Cal.com Data').item.json.phone }}\nProblem: {{ $('Parse Cal.com Data').item.json.problem }}\nCall Time: {{ $('Parse Cal.com Data').item.json.call_datetime_formatted }}\n\n---\nLead added to Sheet. Pre-call sequence started.",
+        "options": {}
+      },
+      "id": "96995edb-05b4-4680-a9e7-913762997677",
+      "name": "Team Notify: New Booking",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        8656,
+        12224
+      ],
+      "webhookId": "9132457e-8376-4259-b2eb-c5c6833be410",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "090829cb-4614-4471-94bd-2ae7d18d9e68",
+      "name": "Every 15 Min: Check Pre-Call Emails",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        7968,
+        12496
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1250359085,
+          "mode": "list",
+          "cachedResultName": "Sheet8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k/edit#gid=1250359085"
+        },
+        "options": {}
+      },
+      "id": "c57f7224-0a62-4eb1-a711-1a5deb1abf84",
+      "name": "Get All Leads from Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        8192,
+        12496
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EwCSUq1LduUKt5LT",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.Stage }}",
+              "rightValue": "booked",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "754fb42b-04d1-492a-b451-91ea7e9c2368",
+      "name": "Filter: Only 'booked' Leads",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        8416,
+        12496
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================\n// CHECK WHICH PRE-CALL EMAILS TO SEND\n// =============================================\n// This runs every 15 minutes and checks each\n// 'booked' lead to see if it's time to send\n// any of the pre-call emails.\n// =============================================\n\nconst leads = $input.all();\nconst now = new Date();\nconst emailsToSend = [];\n\nfor (const item of leads) {\n  const lead = item.json;\n  const callTime = new Date(lead['Call Time']);\n  const hoursUntilCall = (callTime - now) / (1000 * 60 * 60);\n  \n  // Skip if call is in the past\n  if (hoursUntilCall < 0) continue;\n  \n  // EMAIL 2: Testimonials (24 hours before)\n  // Send if between 23.5 and 24.5 hours before call\n  if (hoursUntilCall >= 23.5 && hoursUntilCall <= 24.5) {\n    emailsToSend.push({\n      ...lead,\n      email_to_send: 2,\n      email_name: 'Testimonials (24 hrs before)'\n    });\n  }\n  \n  // EMAIL 3: Reminder + Question (4 hours before)\n  // Send if between 3.5 and 4.5 hours before call\n  if (hoursUntilCall >= 3.5 && hoursUntilCall <= 4.5) {\n    emailsToSend.push({\n      ...lead,\n      email_to_send: 3,\n      email_name: 'Reminder + Question (4 hrs before)'\n    });\n  }\n  \n  // EMAIL 4: Final Reminder (30 min before)\n  // Send if between 25 and 35 minutes before call\n  if (hoursUntilCall >= 0.4 && hoursUntilCall <= 0.6) {\n    emailsToSend.push({\n      ...lead,\n      email_to_send: 4,\n      email_name: 'Final Reminder (30 min before)'\n    });\n  }\n}\n\n// If no emails to send, return empty flag\nif (emailsToSend.length === 0) {\n  return [{ json: { no_emails: true } }];\n}\n\nreturn emailsToSend.map(e => ({ json: e }));"
+      },
+      "id": "9573adb7-3632-482f-8a2a-931e9cf6ee53",
+      "name": "Check Pre-Call Email Timing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8640,
+        12496
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.no_emails }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notTrue"
+              },
+              "id": "ac04a265-4b33-42ea-8f49-f1f90f43db6f"
+            },
+            {
+              "id": "7142b863-82a5-4633-8b65-11edd5f54b63",
+              "leftValue": "={{ $json.Email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "96f84c4a-0cdb-4f24-9497-6229e8f6d958",
+      "name": "Filter: Has Emails to Send?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        8864,
+        12496
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.email_to_send }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "a9e917bc-b5f2-43c8-84a5-bdb6a2f2d24a"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Email 2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.email_to_send }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "4f48410c-6738-4de2-a366-853f7eae45a5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Email 3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.email_to_send }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "c4c90d2d-a60d-48f0-aee3-ad4a0063c851"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Email 4"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "296b6562-0d12-40b7-a123-68523ae17eb8",
+      "name": "Route to Correct Email",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [
+        9088,
+        12480
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Quick stories before our call tomorrow",
+        "message": "=<p>Hi {{ $json.Name }},</p>\n\n<p>Before we chat tomorrow, wanted to share what's possible:</p>\n\n<hr>\n\n<p><em>\"We went from 12 to 47 booked calls per month in 6 weeks. Hit our $50K/month milestone 3 months ahead of schedule.\"</em><br>\n— [Client Name], [Company]</p>\n\n<hr>\n\n<p><em>\"We were stuck at $2M ARR for 18 months. They diagnosed that our inventory system was the bottleneck, not marketing. Now at $4.2M.\"</em><br>\n— [Client Name], [Company]</p>\n\n<hr>\n\n<p><em>\"They don't just build—they challenge our assumptions. Saved us from a $40K mistake on day one.\"</em><br>\n— [Client Name], [Company]</p>\n\n<hr>\n\n<p>See you tomorrow!</p>\n\n<p>[YOUR_NAME]</p>",
+        "options": {}
+      },
+      "id": "909a6685-64b4-4c5a-abb7-a510a4d12164",
+      "name": "Email 2: Testimonials",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9312,
+        12304
+      ],
+      "webhookId": "9fbf5168-3fdf-485e-9593-19c91e851427",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Quick question before our call in 4 hours",
+        "message": "=<p>Hi {{ $json.Name }},</p>\n\n<p>We're connecting in about 4 hours.</p>\n\n<p><strong>Quick question before we meet:</strong></p>\n\n<p>What's the #1 outcome that would make this AI investment a no-brainer for you?</p>\n\n<p>Just hit reply – I'll make sure we cover it on the call.</p>\n\n<p>Talk soon,<br>[YOUR_NAME]</p>\n\n<p><strong>Meeting link:</strong> <a href=\"[MEETING_LINK]\">[MEETING_LINK]</a></p>",
+        "options": {}
+      },
+      "id": "1efe76b4-acb3-418b-a17f-866ec4e39117",
+      "name": "Email 3: Reminder + Question",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9312,
+        12496
+      ],
+      "webhookId": "f347d2a1-8071-43bb-8f5c-e6c6083cb20e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Starting in 30 minutes – {{ $json.Name }}",
+        "message": "=<p>Hi {{ $json.Name }},</p>\n\n<p>Just a quick reminder – we're meeting in 30 minutes.</p>\n\n<p><strong>Here's your link:</strong> <a href=\"[MEETING_LINK]\">[MEETING_LINK]</a></p>\n\n<p>See you there!</p>\n\n<p>[YOUR_NAME]</p>",
+        "options": {}
+      },
+      "id": "06196224-d0c8-4ee8-8c3d-f2eba512c9a0",
+      "name": "Email 4: Final Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9312,
+        12688
+      ],
+      "webhookId": "42484459-81b7-446b-8c03-a3b444b24daf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fathom-call-ended",
+        "options": {}
+      },
+      "id": "900f4dc6-7d4b-4960-aa61-d4a12c934faf",
+      "name": "Fathom Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        7984,
+        13152
+      ],
+      "webhookId": "fathom-call-ended"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================\n// PARSE FATHOM CALL DATA\n// =============================================\n// Extracts the call summary and attendee info\n// from Fathom's webhook payload.\n// =============================================\n\nconst payload = $input.first().json;\n\nreturn [{\n  json: {\n    // Find lead by this email\n    attendee_email: payload.attendee_email || payload.participants?.[0]?.email || '',\n    \n    // Call summary from Fathom AI\n    call_summary: payload.summary || payload.tldr || 'Call completed. Summary not available.',\n    \n    // Action items if available\n    action_items: payload.action_items || payload.next_steps || [],\n    \n    // For email copy\n    call_date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })\n  }\n}];"
+      },
+      "id": "c2707467-4d29-4b6e-9ba2-59025b20c353",
+      "name": "Parse Fathom Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8208,
+        13152
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1250359085,
+          "mode": "list",
+          "cachedResultName": "Sheet8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k/edit#gid=1250359085"
+        },
+        "options": {}
+      },
+      "id": "1502d0e1-2395-41d0-af3d-c955cd4eb2dd",
+      "name": "Get All Leads (Post-Call)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        8432,
+        13152
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EwCSUq1LduUKt5LT",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================\n// FIND LEAD BY EMAIL\n// =============================================\n// Matches the Fathom attendee email to our Sheet\n// =============================================\n\nconst fathomData = $('Parse Fathom Data').first().json;\nconst leads = $('Get All Leads (Post-Call)').all();\n\nconst targetEmail = fathomData.attendee_email.toLowerCase();\nconst matchedLead = leads.find(l => \n  l.json.Email?.toLowerCase() === targetEmail\n);\n\nif (!matchedLead) {\n  return [{ json: { error: 'Lead not found', email: targetEmail } }];\n}\n\nreturn [{\n  json: {\n    ...matchedLead.json,\n    call_summary: fathomData.call_summary,\n    call_date: fathomData.call_date\n  }\n}];"
+      },
+      "id": "bf90c91d-c0cc-44d7-a75a-d748fd38bf86",
+      "name": "Find Lead by Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8656,
+        13152
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1250359085,
+          "mode": "list",
+          "cachedResultName": "Sheet8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k/edit#gid=1250359085"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Problem",
+              "displayName": "Problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Call Time",
+              "displayName": "Call Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "fb9f4cdb-b463-40f6-8018-25471de9a7fa",
+      "name": "Update Stage: call_done",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        8880,
+        13056
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EwCSUq1LduUKt5LT",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "[TEAM_EMAIL]",
+        "subject": "Call Completed: {{ $json.Name }}",
+        "emailType": "text",
+        "message": "=CALL COMPLETED\n\nName: {{ $json.Name }}\nEmail: {{ $json.Email }}\nProblem: {{ $json.Problem }}\n\nFathom Summary:\n{{ $json.call_summary }}\n\n---\nStage updated to: call_done\nSummary email will be sent in 3 hours.",
+        "options": {}
+      },
+      "id": "d6a70f0f-6525-49ff-a8b6-b777017b0821",
+      "name": "Team Notify: Call Completed",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        8880,
+        13248
+      ],
+      "webhookId": "b40c5618-3a0a-40e4-9fc0-a931704e7d17",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "id": "eae592e5-c31e-413b-9931-5cdf2a2d7b0f",
+      "name": "Wait 3 Hours",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        9104,
+        13056
+      ],
+      "webhookId": "wait-postcall"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "Our conversation + next steps",
+        "message": "=<p>Hi {{ $json.Name }},</p>\n\n<p>Great connecting today. Here's a quick recap:</p>\n\n<p><strong>What we discussed:</strong><br>\n{{ $json.call_summary }}</p>\n\n<p><strong>Recommended next step:</strong><br>\nSchedule an implementation call to map out your project.</p>\n\n<p><a href=\"[NEXT_STEP_LINK]\" style=\"background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Schedule Implementation Call</a></p>\n\n<p>Questions? Just reply to this email.</p>\n\n<p>[YOUR_NAME]</p>",
+        "options": {}
+      },
+      "id": "df9514a3-60b0-42ec-b263-5ee477fc2c99",
+      "name": "Email 5: Call Summary",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9328,
+        13056
+      ],
+      "webhookId": "a8e5e6cd-18d3-4608-a2c5-af6a8ddcaef9",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1250359085,
+          "mode": "list",
+          "cachedResultName": "Sheet8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k/edit#gid=1250359085"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Problem",
+              "displayName": "Problem",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Call Time",
+              "displayName": "Call Time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "displayName": "Stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "14c8a163-26a8-4556-a95c-2bf7ff1d5823",
+      "name": "Update Stage: follow_up",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        9552,
+        13056
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EwCSUq1LduUKt5LT",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "6bb63e7c-fc0d-4f02-9985-6f5612caefa5",
+      "name": "Every 1 Hour: Check Post-Call Emails",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        7984,
+        13472
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1250359085,
+          "mode": "list",
+          "cachedResultName": "Sheet8",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1zNPi7BGegK_br19poRZgo3OCxtaF9IRBPBcVXnWoS1k/edit#gid=1250359085"
+        },
+        "options": {}
+      },
+      "id": "bd2e0a9b-1ec4-450f-95b1-262681df57b2",
+      "name": "Get All Leads (Follow-Up)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        8208,
+        13472
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "EwCSUq1LduUKt5LT",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.Stage }}",
+              "rightValue": "follow_up",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8b907fd6-0343-4ea3-ab13-e6296670e79e",
+      "name": "Filter: Only 'follow_up' Leads",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        8432,
+        13472
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================\n// CHECK WHICH POST-CALL EMAILS TO SEND\n// =============================================\n// This runs every hour and checks each 'follow_up'\n// lead to see if it's time for Day 2 email.\n// =============================================\n\nconst leads = $input.all();\nconst now = new Date();\nconst emailsToSend = [];\n\nfor (const item of leads) {\n  const lead = item.json;\n  const callTime = new Date(lead['Call Time']);\n  const hoursSinceCall = (now - callTime) / (1000 * 60 * 60);\n  \n  // EMAIL 6: Results Showcase (Day 2 = ~24 hours after call)\n  // Send if between 23-25 hours after call\n  if (hoursSinceCall >= 23 && hoursSinceCall <= 25) {\n    emailsToSend.push({\n      ...lead,\n      email_to_send: 6,\n      email_name: 'Results Showcase (Day 2)'\n    });\n  }\n}\n\n// If no emails to send, return empty flag\nif (emailsToSend.length === 0) {\n  return [{ json: { no_emails: true } }];\n}\n\nreturn emailsToSend.map(e => ({ json: e }));"
+      },
+      "id": "0076238c-10dc-4a75-9def-adc6c8639b4b",
+      "name": "Check Post-Call Email Timing",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8656,
+        13472
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.no_emails }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "notTrue"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d2872330-3922-4061-bb98-bc67383ef9c8",
+      "name": "Filter: Has Post-Call Emails?",
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        8880,
+        13472
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "subject": "What this looks like in action",
+        "message": "=<p>Hi {{ $json.Name }},</p>\n\n<p>Following up on our conversation about {{ $json.Problem }}.</p>\n\n<p><strong>Here's what clients typically see after working with us:</strong></p>\n<ul>\n<li>60% reduction in manual work within 30 days</li>\n<li>ROI positive within 2 months</li>\n<li>Full implementation in 2-3 weeks</li>\n</ul>\n\n<p><strong>And here's how we're different:</strong> We withhold 20% of our fee until you hit measurable outcomes. We only get paid in full when you win.</p>\n\n<p>Ready to move forward?</p>\n\n<p><a href=\"[NEXT_STEP_LINK]\" style=\"background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;\">Schedule Implementation Call</a></p>\n\n<p>[YOUR_NAME]</p>",
+        "options": {}
+      },
+      "id": "5aba54bf-9232-40f3-b98f-c0e9fa7fcd72",
+      "name": "Email 6: Results Showcase",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        9104,
+        13472
+      ],
+      "webhookId": "1b56e42b-55ce-43a4-8c17-6d1af9be70cd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "He8vG6hSv0GGPNEE",
+          "name": "Prakarsh"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Pre Call\n",
+        "height": 880,
+        "width": 2208,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7696,
+        11968
+      ],
+      "typeVersion": 1,
+      "id": "ef492be6-87e8-4326-a31d-7fcac204080d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "# Post Call\n",
+        "height": 880,
+        "width": 2208,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7696,
+        12880
+      ],
+      "typeVersion": 1,
+      "id": "d90b025d-0fc6-4d96-bf9a-cd64af586235",
+      "name": "Sticky Note1"
+    }
+  ],
+  "connections": {
+    "Cal.com Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Cal.com Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Cal.com Data": {
+      "main": [
+        [
+          {
+            "node": "Add Lead to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Lead to Google Sheet": {
+      "main": [
+        [
+          {
+            "node": "Email 1: Booking Confirmation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Team Notify: New Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 Min: Check Pre-Call Emails": {
+      "main": [
+        [
+          {
+            "node": "Get All Leads from Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Leads from Sheet": {
+      "main": [
+        [
+          {
+            "node": "Filter: Only 'booked' Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Only 'booked' Leads": {
+      "main": [
+        [
+          {
+            "node": "Check Pre-Call Email Timing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Pre-Call Email Timing": {
+      "main": [
+        [
+          {
+            "node": "Filter: Has Emails to Send?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Has Emails to Send?": {
+      "main": [
+        [
+          {
+            "node": "Route to Correct Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route to Correct Email": {
+      "main": [
+        [
+          {
+            "node": "Email 2: Testimonials",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email 3: Reminder + Question",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email 4: Final Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fathom Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse Fathom Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Fathom Data": {
+      "main": [
+        [
+          {
+            "node": "Get All Leads (Post-Call)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Leads (Post-Call)": {
+      "main": [
+        [
+          {
+            "node": "Find Lead by Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lead by Email": {
+      "main": [
+        [
+          {
+            "node": "Update Stage: call_done",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Team Notify: Call Completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Stage: call_done": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 Hours",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 Hours": {
+      "main": [
+        [
+          {
+            "node": "Email 5: Call Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email 5: Call Summary": {
+      "main": [
+        [
+          {
+            "node": "Update Stage: follow_up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 1 Hour: Check Post-Call Emails": {
+      "main": [
+        [
+          {
+            "node": "Get All Leads (Follow-Up)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Leads (Follow-Up)": {
+      "main": [
+        [
+          {
+            "node": "Filter: Only 'follow_up' Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Only 'follow_up' Leads": {
+      "main": [
+        [
+          {
+            "node": "Check Post-Call Email Timing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Post-Call Email Timing": {
+      "main": [
+        [
+          {
+            "node": "Filter: Has Post-Call Emails?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Has Post-Call Emails?": {
+      "main": [
+        [
+          {
+            "node": "Email 6: Results Showcase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {
+    "Cal.com Webhook": [
+      {
+        "headers": {
+          "host": "n8n.smallgrp.com",
+          "user-agent": "node",
+          "content-length": "4399",
+          "accept": "*/*",
+          "accept-encoding": "br, gzip, deflate",
+          "accept-language": "*",
+          "baggage": "sentry-environment=vercel-production,sentry-public_key=7fa2ea46dede9404597bde582525baca,sentry-trace_id=dccf40706b5d4686939ae0849e11d443,sentry-org_id=574544,sentry-sampled=false,sentry-sample_rand=0.3045925360429198,sentry-sample_rate=0",
+          "content-type": "application/json",
+          "sec-fetch-mode": "cors",
+          "sentry-trace": "dccf40706b5d4686939ae0849e11d443-73287aa968697bf3-0",
+          "x-cal-signature-256": "no-secret-provided",
+          "x-cal-webhook-version": "2021-10-20",
+          "x-forwarded-for": "18.217.51.84",
+          "x-forwarded-host": "n8n.smallgrp.com",
+          "x-forwarded-port": "443",
+          "x-forwarded-proto": "https",
+          "x-forwarded-server": "2f70468da9a1",
+          "x-invocation-id": "bom1:bom1::7gfw2-1770476920312-65513bae5858",
+          "x-real-ip": "18.217.51.84",
+          "x-vercel-id": "bom1:bom1::7gfw2-1770476920312-65513bae5858"
+        },
+        "params": {},
+        "query": {},
+        "body": {
+          "triggerEvent": "BOOKING_CREATED",
+          "createdAt": "2026-02-07T15:08:42.898Z",
+          "payload": {
+            "bookerUrl": "https://cal.com",
+            "title": "AI Automation Consultation between Prakarsh Gupta and Prakarsh Gupta",
+            "startTime": "2026-02-08T15:30:00Z",
+            "endTime": "2026-02-08T16:00:00Z",
+            "additionalNotes": "",
+            "type": "ai-dev",
+            "description": "****Who it's for: Founders/teams with a clear bottleneck to fix in 30–60 days.****\n\nOutcome: A 2-week pilot plan with scope, timeline, and expected ROI.\n\nA fast, focused session to map your current process, quantify the highest-ROI automation, and outline a 2-week pilot. If we're not the right fit, you'll still leave with a clear next step.",
+            "eventTypeId": 3085736,
+            "hideCalendarNotes": false,
+            "hideCalendarEventDetails": false,
+            "hideOrganizerEmail": false,
+            "schedulingType": null,
+            "seatsPerTimeSlot": null,
+            "seatsShowAttendees": true,
+            "seatsShowAvailabilityCount": true,
+            "customReplyToEmail": null,
+            "disableRescheduling": false,
+            "disableCancelling": false,
+            "organizer": {
+              "id": 1440928,
+              "name": "Prakarsh Gupta",
+              "email": "prakarshgupta02051@gmail.com",
+              "username": "prakarshgupta",
+              "timeZone": "Asia/Calcutta",
+              "language": {
+                "locale": "en"
+              },
+              "timeFormat": "h:mma",
+              "utcOffset": 330
+            },
+            "attendees": [
+              {
+                "email": "prakarshgupta02051@gmail.com",
+                "name": "Prakarsh Gupta",
+                "phoneNumber": "+919555903535",
+                "firstName": "",
+                "lastName": "",
+                "timeZone": "Asia/Calcutta",
+                "language": {
+                  "locale": "en"
+                },
+                "utcOffset": 330
+              }
+            ],
+            "customInputs": {},
+            "responses": {
+              "name": {
+                "label": "your_name",
+                "value": "Prakarsh Gupta",
+                "isHidden": false
+              },
+              "email": {
+                "label": "email_address",
+                "value": "prakarshgupta02051@gmail.com",
+                "isHidden": false
+              },
+              "attendeePhoneNumber": {
+                "label": "WhatsApp Number",
+                "value": "+919555903535",
+                "isHidden": false
+              },
+              "lead-location": {
+                "label": "How did you find us?",
+                "value": "Youtube",
+                "isHidden": false
+              },
+              "yt-video": {
+                "label": "If from Youtube, which Video did you watch?",
+                "value": "SEO Blog Writer",
+                "isHidden": false
+              },
+              "problem-statement": {
+                "label": "What's your Problem statement?",
+                "value": "Business growth",
+                "isHidden": false
+              },
+              "business-website": {
+                "label": "Business website",
+                "value": "smallgrp.com",
+                "isHidden": false
+              },
+              "location-lead": {
+                "label": "Location",
+                "value": "India",
+                "isHidden": false
+              },
+              "guests": {
+                "label": "additional_guests",
+                "value": [],
+                "isHidden": false
+              },
+              "notes": {
+                "label": "additional_notes",
+                "isHidden": true
+              },
+              "location": {
+                "label": "location",
+                "value": {
+                  "value": "integrations:google:meet",
+                  "optionValue": ""
+                },
+                "isHidden": false
+              },
+              "title": {
+                "label": "what_is_this_meeting_about",
+                "isHidden": true
+              },
+              "rescheduleReason": {
+                "label": "reason_for_reschedule",
+                "isHidden": true
+              }
+            },
+            "userFieldsResponses": {
+              "lead-location": {
+                "label": "How did you find us?",
+                "value": "Youtube",
+                "isHidden": false
+              },
+              "yt-video": {
+                "label": "If from Youtube, which Video did you watch?",
+                "value": "SEO Blog Writer",
+                "isHidden": false
+              },
+              "problem-statement": {
+                "label": "What's your Problem statement?",
+                "value": "Business growth",
+                "isHidden": false
+              },
+              "business-website": {
+                "label": "Business website",
+                "value": "smallgrp.com",
+                "isHidden": false
+              },
+              "location-lead": {
+                "label": "Location",
+                "value": "India",
+                "isHidden": false
+              }
+            },
+            "location": "https://meet.google.com/pci-vfww-jum",
+            "destinationCalendar": [
+              {
+                "id": 528872,
+                "integration": "google_calendar",
+                "externalId": "prakarshgupta02051@gmail.com",
+                "primaryEmail": "prakarshgupta02051@gmail.com",
+                "userId": 1440928,
+                "eventTypeId": null,
+                "credentialId": 870859,
+                "createdAt": "2025-07-07T10:50:48.811Z",
+                "updatedAt": null,
+                "delegationCredentialId": null,
+                "domainWideDelegationCredentialId": null,
+                "customCalendarReminder": null
+              }
+            ],
+            "iCalUID": "ufLAoUmkyWgTm1YkoFR6G7@Cal.com",
+            "iCalSequence": 0,
+            "requiresConfirmation": false,
+            "oneTimePassword": null,
+            "hashedLink": null,
+            "uid": "ufLAoUmkyWgTm1YkoFR6G7",
+            "conferenceData": {
+              "createRequest": {
+                "requestId": "8a0ce172-f69a-51b5-8481-93feb73d58e2"
+              }
+            },
+            "appsStatus": [
+              {
+                "appName": "Google Calendar",
+                "type": "google_calendar",
+                "success": 1,
+                "failures": 0,
+                "errors": [],
+                "warnings": []
+              },
+              {
+                "appName": "Google Meet",
+                "type": "conferencing",
+                "success": 1,
+                "failures": 0,
+                "errors": []
+              }
+            ],
+            "eventTitle": "AI Automation Consultation",
+            "eventDescription": "****Who it's for: Founders/teams with a clear bottleneck to fix in 30–60 days.****\n\nOutcome: A 2-week pilot plan with scope, timeline, and expected ROI.\n\nA fast, focused session to map your current process, quantify the highest-ROI automation, and outline a 2-week pilot. If we're not the right fit, you'll still leave with a clear next step.",
+            "price": 0,
+            "currency": "usd",
+            "length": 30,
+            "bookingId": 15630300,
+            "metadata": {
+              "videoCallUrl": "https://meet.google.com/pci-vfww-jum"
+            },
+            "status": "ACCEPTED"
+          }
+        },
+        "webhookUrl": "https://n8n.smallgrp.com/webhook/calcom-booking",
+        "executionMode": "production"
+      }
+    ],
+    "Parse Cal.com Data": [
+      {
+        "name": "Prakarsh Gupta",
+        "email": "prakarshgupta02051@gmail.com",
+        "phone": "+919555903535",
+        "problem": "Business growth",
+        "lead_source": "Youtube",
+        "yt_video": "SEO Blog Writer",
+        "business_website": "smallgrp.com",
+        "location": "India",
+        "call_datetime": "2026-02-08T15:30:00.000Z",
+        "call_datetime_formatted": "Sunday, Feb 8, 3:30 PM UTC",
+        "call_time": "3:30 PM UTC",
+        "call_day": "Sunday",
+        "meeting_link": "https://meet.google.com/pci-vfww-jum",
+        "hours_until_call": 24,
+        "stage": "booked"
+      }
+    ],
+    "Add Lead to Google Sheet": [
+      {
+        "Name": "Prakarsh Gupta",
+        "Email": "prakarshgupta02051@gmail.com",
+        "Phone": "+919555903535",
+        "Problem": "Business growth",
+        "Call Time": "2026-02-08T15:30:00.000Z",
+        "Stage": "booked"
+      }
+    ],
+    "Email 1: Booking Confirmation": [
+      {
+        "id": "19c38ac40576aebc",
+        "threadId": "19c38ac40576aebc",
+        "labelIds": [
+          "UNREAD",
+          "SENT",
+          "INBOX"
+        ]
+      }
+    ],
+    "Team Notify: New Booking": [
+      {
+        "id": "19c38ac4207b2860",
+        "threadId": "19c38ac4207b2860",
+        "labelIds": [
+          "UNREAD",
+          "SENT",
+          "INBOX"
+        ]
+      }
+    ]
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2c199b662b8ffce3374d02baf358185d05e386992ffe0aa88ea69c28a0668d81"
+  }
+}

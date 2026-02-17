@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Group — Ernest Chuang</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAFA; --surface: #FFFFFF; --text-primary: #111111;
+            --text-secondary: #555555; --text-muted: #999999;
+            --accent: #1A1A2E; --accent-light: #16213E; --highlight: #0F3460;
+            --blue: #2563EB; --blue-light: #EFF6FF;
+            --green: #059669; --green-light: #ECFDF5;
+            --orange: #D97706; --orange-light: #FFFBEB;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .deck { width: 100%; height: 100%; position: relative; }
+        .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; visibility: hidden; transform: translateX(40px); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); background: var(--bg); }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+        .slide.prev { transform: translateX(-40px); }
+        .slide-inner { max-width: 1100px; width: 100%; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; user-select: none; }
+        .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; color: var(--accent); }
+        .nav-controls { display: flex; align-items: center; gap: 16px; }
+        .nav-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-primary); }
+        .nav-btn:hover { background: var(--bg); border-color: #ccc; }
+        .nav-btn svg { width: 16px; height: 16px; }
+        .nav-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); z-index: 100; }
+        .serif { font-family: 'Playfair Display', Georgia, serif; }
+        h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+        h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
+        h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+        p { font-size: 18px; line-height: 1.6; color: var(--text-secondary); }
+        .label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+        .subtitle { font-size: 22px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+        .card-grid { display: grid; gap: 20px; }
+        .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .card-grid.cols-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
+        .icon-circle { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+        .icon-circle.blue { background: var(--blue-light); }
+        .icon-circle.green { background: var(--green-light); }
+        .icon-circle.orange { background: var(--orange-light); }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+        .badge.blue { background: var(--blue-light); color: var(--blue); }
+        .badge.green { background: var(--green-light); color: var(--green); }
+        .spacer-16 { height: 16px; } .spacer-24 { height: 24px; } .spacer-32 { height: 32px; } .spacer-40 { height: 40px; } .spacer-48 { height: 48px; }
+        .text-center { text-align: center; }
+        .check-list { list-style: none; }
+        .check-list li { padding: 10px 0; font-size: 17px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 12px; line-height: 1.4; }
+        .check-list li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+        .timeline { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0; position: relative; }
+        .timeline::before { content: ''; position: absolute; top: 24px; left: 24px; right: 24px; height: 2px; background: var(--border); }
+        .timeline-item { position: relative; padding: 0 16px; }
+        .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-bottom: 20px; position: relative; z-index: 2; margin-left: 8px; }
+        .timeline-week { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        .timeline-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .timeline-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+        .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
+        .vs-block { padding: 32px; border-radius: var(--radius); }
+        .vs-block.before { background: #FEF2F2; border: 1px solid #FECACA; }
+        .vs-block.after { background: var(--green-light); border: 1px solid #A7F3D0; }
+        .vs-divider { font-size: 24px; font-weight: 700; color: var(--text-muted); }
+        .flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 22px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); }
+        .flow-arrow { color: var(--text-muted); font-size: 18px; }
+        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .pricing-card { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 40px 32px; position: relative; }
+        .pricing-card.recommended { border-color: var(--accent); }
+        .pricing-card.recommended .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 16px; border-radius: 100px; }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .pricing-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+        .pricing-amount { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; }
+        .pricing-period { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-features { list-style: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .pricing-features li { padding: 8px 0; font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+        .pricing-features li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 14px; }
+        .pillar-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .pillar-tag .num { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .pillar-tag .text { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+        .comparison { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .comparison th, .comparison td { padding: 16px 24px; text-align: left; font-size: 15px; border-bottom: 1px solid var(--border); }
+        .comparison th { font-weight: 600; color: var(--text-muted); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg); }
+        .comparison td { color: var(--text-secondary); }
+        .comparison td:first-child { font-weight: 500; color: var(--text-primary); }
+        .comparison .highlight-col { background: var(--blue-light); }
+        .comparison .highlight-col-header { background: var(--blue); color: white !important; border-radius: 12px 12px 0 0; }
+        .animate-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+        .animate-in.visible { opacity: 1; transform: translateY(0); }
+        @media (max-width: 900px) {
+            .slide { padding: 40px 32px; } h1 { font-size: 40px; } h2 { font-size: 32px; }
+            .card-grid.cols-3, .card-grid.cols-4, .card-grid.cols-5 { grid-template-columns: 1fr 1fr; }
+            .timeline { grid-template-columns: 1fr 1fr; gap: 24px; } .timeline::before { display: none; }
+            .pricing-grid { grid-template-columns: 1fr; } .vs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="deck" id="deck">
+
+    <!-- SLIDE 1 - TITLE -->
+    <div class="slide active" data-slide="1">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 20px;">Your Content Growth Engine<br><span class="serif" style="font-weight: 600;">for Insider Trading Insights</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 640px; margin: 0 auto;">An automated content and distribution system designed to drive thousands of app downloads &mdash; without paid ads.</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in"><p style="font-size: 15px; color: var(--text-muted);">Prepared for Ernest Chuang&ensp;&middot;&ensp;February 17, 2026</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2 - AGENDA -->
+    <div class="slide" data-slide="2">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Today's Agenda</p><h2 style="margin-bottom: 48px;">What We'll Cover</h2></div>
+            <div class="card-grid cols-3">
+                <div class="card animate-in"><div style="font-size: 32px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px;">01</div><h3 style="font-size: 18px; margin-bottom: 8px;">Your Goals</h3><p style="font-size: 15px;">Where you want to be in 2 months and what organic growth looks like.</p></div>
+                <div class="card animate-in"><div style="font-size: 32px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px;">02</div><h3 style="font-size: 18px; margin-bottom: 8px;">The System</h3><p style="font-size: 15px;">Five pillars &mdash; content, SEO, social, engagement, and a download accelerator.</p></div>
+                <div class="card animate-in"><div style="font-size: 32px; font-weight: 800; color: var(--text-muted); margin-bottom: 12px;">03</div><h3 style="font-size: 18px; margin-bottom: 8px;">Investment &amp; Timeline</h3><p style="font-size: 15px;">What it costs, how fast it launches, and the numbers behind the ROI.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3 - THE GAP -->
+    <div class="slide" data-slide="3">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The Challenge</p><h2 style="margin-bottom: 48px;">From Manual to Automated Scale</h2></div>
+            <div class="vs-grid animate-in">
+                <div class="vs-block before">
+                    <p class="label" style="color: #DC2626; margin-bottom: 16px;">Today</p>
+                    <h3 style="font-size: 42px; font-weight: 800; color: #991B1B; margin-bottom: 16px;">0</h3>
+                    <p style="font-size: 16px; color: #991B1B;">articles generated per week</p>
+                    <div style="height: 16px;"></div>
+                    <p style="font-size: 14px; color: #B91C1C; line-height: 1.6;">Manual content creation. No consistent distribution. Relying on paid ads. Insider trade data sitting unused.</p>
+                </div>
+                <div class="vs-divider">&rarr;</div>
+                <div class="vs-block after">
+                    <p class="label" style="color: var(--green); margin-bottom: 16px;">With Small Group</p>
+                    <h3 style="font-size: 42px; font-weight: 800; color: #065F46; margin-bottom: 16px;">20-30+</h3>
+                    <p style="font-size: 16px; color: #065F46;">articles per week, auto-generated</p>
+                    <div style="height: 16px;"></div>
+                    <p style="font-size: 14px; color: #047857; line-height: 1.6;">AI content from your data. Distributed across 5+ platforms. Engagement automation. 10-20K downloads targeted.</p>
+                </div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in text-center"><p style="font-size: 16px; color: var(--text-muted);"><strong>Your data is the moat.</strong>&ensp;We turn it into a growth engine.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4 - FIVE PILLARS OVERVIEW -->
+    <div class="slide" data-slide="4">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The System</p><h2 style="margin-bottom: 48px;">Five Pillars That Drive Downloads</h2></div>
+            <div class="card-grid cols-5">
+                <div class="card animate-in" style="border-top: 3px solid var(--blue); padding: 24px;"><div class="icon-circle blue">&#x1F4CA;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Content Engine</h3><p style="font-size: 13px;">AI turns your trade data into articles automatically.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--accent); padding: 24px;"><div class="icon-circle" style="background: #F3F4F6;">&#x1F50D;</div><h3 style="font-size: 15px; margin-bottom: 6px;">SEO &amp; Blog</h3><p style="font-size: 13px;">Rank for stock trading keywords on Google.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--orange); padding: 24px;"><div class="icon-circle orange">&#x1F4F1;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Social Distribution</h3><p style="font-size: 13px;">Multi-account posting across Reddit, X, StockTwits.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--green); padding: 24px;"><div class="icon-circle green">&#x1F4AC;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Engagement</h3><p style="font-size: 13px;">Auto-comment and interact on relevant discussions.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid #8B5CF6; padding: 24px;"><div class="icon-circle" style="background: #EDE9FE;">&#x1F680;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Download Accelerator</h3><p style="font-size: 13px;">ASO + AppAdvice to spike downloads fast.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5 - PILLAR 1: CONTENT ENGINE -->
+    <div class="slide" data-slide="5">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">1</div><div class="text">Pillar One</div></div>
+                <h2 style="margin-bottom: 12px;">Content Engine</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Your app generates the data. We turn it into content &mdash; automatically, at scale.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Data-to-Article Pipeline</h3>
+                    <ul class="check-list">
+                        <li>Pull insider trade data from your app</li>
+                        <li>AI generates article with key insights</li>
+                        <li>Include images and charts from filings</li>
+                        <li>Publish-ready in minutes, not hours</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Content Volume at Scale</h3>
+                    <ul class="check-list">
+                        <li>20-30 articles per week at full volume</li>
+                        <li>Multiple formats: blogs, social snippets, forum posts</li>
+                        <li>Each article optimized for SEO and engagement</li>
+                        <li>Consistent publishing schedule maintained</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6 - PILLAR 2: SEO -->
+    <div class="slide" data-slide="6">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">2</div><div class="text">Pillar Two</div></div>
+                <h2 style="margin-bottom: 12px;">SEO &amp; Blog</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Capture the people actively searching for insider trading insights on Google.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Keyword Strategy</h3>
+                    <ul class="check-list">
+                        <li>Target "insider stock trades today"</li>
+                        <li>Optimize for "SEC insider trading filings"</li>
+                        <li>Capture specific company insider moves</li>
+                        <li>Build domain authority in stock research</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Content Flywheel</h3>
+                    <ul class="check-list">
+                        <li>Every article targets 2-3 keywords</li>
+                        <li>Meta descriptions and headers optimized</li>
+                        <li>Internal linking between related trades</li>
+                        <li>Growing organic traffic month over month</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="card animate-in text-center" style="background: #FAFAFA; border: 1px dashed var(--border);"><p style="font-size: 15px; color: var(--text-secondary);"><strong>70% of marketers say SEO outperforms PPC.</strong>&ensp;Once an article ranks, it drives traffic forever &mdash; unlike ads that stop when you stop paying.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7 - PILLAR 3: SOCIAL DISTRIBUTION -->
+    <div class="slide" data-slide="7">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">3</div><div class="text">Pillar Three</div></div>
+                <h2 style="margin-bottom: 12px;">Social Distribution</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Your content, everywhere your audience hangs out &mdash; posted through a network of accounts.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Multi-Platform Posting</h3>
+                    <ul class="check-list">
+                        <li>Reddit &mdash; r/stocks, r/investing, r/wallstreetbets</li>
+                        <li>Twitter/X &mdash; financial community</li>
+                        <li>StockTwits &mdash; trader-specific platform</li>
+                        <li>Investing forums and communities</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Network of Accounts</h3>
+                    <ul class="check-list">
+                        <li>Multiple accounts per platform for reach</li>
+                        <li>Varied posting styles to appear organic</li>
+                        <li>Scheduled posting at peak engagement times</li>
+                        <li>Content adapted per platform's format</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="card animate-in text-center" style="background: #FAFAFA; border: 1px dashed var(--border);"><p style="font-size: 15px; color: var(--text-secondary);"><strong>Your audience is 22-35 male investors.</strong>&ensp;They're scrolling Reddit and Twitter daily. We meet them there.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8 - PILLAR 4: ENGAGEMENT -->
+    <div class="slide" data-slide="8">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">4</div><div class="text">Pillar Four</div></div>
+                <h2 style="margin-bottom: 12px;">Engagement Automation</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Don't just post &mdash; participate in the conversation. Every interaction drives traffic back to your app.</p>
+            </div>
+            <div class="animate-in">
+                <div class="flow" style="margin-bottom: 40px;">
+                    <div class="flow-step" style="background: var(--blue-light); border-color: var(--blue);">Relevant post detected</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">AI generates comment</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">Posted from account network</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--green-light); border-color: var(--green);">Traffic to your app</div>
+                </div>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">What We Automate</h3>
+                    <ul class="check-list">
+                        <li>Monitor trending stock discussions</li>
+                        <li>Comment on relevant insider trading threads</li>
+                        <li>Upvote and interact with related content</li>
+                        <li>Build credibility in communities</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Why This Works</h3>
+                    <ul class="check-list">
+                        <li>Comments on popular posts get massive visibility</li>
+                        <li>Each interaction is a micro-touchpoint</li>
+                        <li>Account reputation compounds over time</li>
+                        <li>Organic-looking engagement builds trust</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9 - PILLAR 5: DOWNLOAD ACCELERATOR -->
+    <div class="slide" data-slide="9">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">5</div><div class="text">Pillar Five</div></div>
+                <h2 style="margin-bottom: 12px;">App Download Accelerator</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">The growth hack that drove <strong>106,000 downloads</strong> for an AI app &mdash; at $0 ad spend.</p>
+            </div>
+            <div class="card-grid cols-2 animate-in">
+                <div class="card stat"><div class="stat-number" style="font-size: 36px;">106K</div><div class="stat-label">Downloads driven</div></div>
+                <div class="card stat"><div class="stat-number" style="font-size: 36px; color: var(--green);">$0</div><div class="stat-label">Ad spend</div></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="card-grid cols-4">
+                <div class="card animate-in" style="padding: 24px;"><h3 style="font-size: 15px; margin-bottom: 8px;">1. ASO</h3><p style="font-size: 13px;">Optimize your app store listing for discoverability.</p></div>
+                <div class="card animate-in" style="padding: 24px;"><h3 style="font-size: 15px; margin-bottom: 8px;">2. Ratings Prompt</h3><p style="font-size: 13px;">Strategic ratings prompts in the user experience.</p></div>
+                <div class="card animate-in" style="padding: 24px;"><h3 style="font-size: 15px; margin-bottom: 8px;">3. AppAdvice</h3><p style="font-size: 13px;">Make lifetime offer free, get featured, spike downloads.</p></div>
+                <div class="card animate-in" style="padding: 24px;"><h3 style="font-size: 15px; margin-bottom: 8px;">4. Velocity</h3><p style="font-size: 13px;">Download spike boosts rankings for sustained organic growth.</p></div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><p style="font-size: 15px; color: var(--accent); font-weight: 600;">This strategy drove 106K downloads from a single campaign. We customize it for your app.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10 - PROJECTED RESULTS -->
+    <div class="slide" data-slide="10">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Your Projected Growth</p><h2 style="margin-bottom: 48px;">The Numbers Behind<br><span class="serif">The System</span></h2></div>
+            <div class="card-grid cols-4 animate-in">
+                <div class="card stat"><div class="stat-number">20-30+</div><div class="stat-label">Articles per week</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--blue);">5+</div><div class="stat-label">Platforms active</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--green);">10-20K</div><div class="stat-label">Downloads targeted (2 months)</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--accent);">$0</div><div class="stat-label">Ad spend required</div></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><div class="card" style="background: var(--bg); text-align: left; max-width: 700px; margin: 0 auto;"><p style="font-size: 15px; color: var(--text-secondary); line-height: 1.7;">Based on content volume, platform reach, and the AppAdvice case study. <strong>Results compound</strong> &mdash; Month 2 outperforms Month 1. Month 6 outperforms Month 3. Every article is a permanent asset driving traffic to your app.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11 - PHASE 2 VISION -->
+    <div class="slide" data-slide="11">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">What Comes Next</p><h2 style="margin-bottom: 12px;">Phase 2: Scale &amp; Expand</h2><p style="max-width: 700px; margin-bottom: 40px;">Once the engine is running, we unlock additional channels and formats.</p></div>
+            <div class="card-grid cols-3">
+                <div class="card animate-in"><div class="icon-circle orange">&#x1F3AC;</div><h3 style="font-size: 16px; margin-bottom: 8px;">Video Content</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Repurpose articles into short-form video for TikTok, YouTube Shorts, and Instagram Reels &mdash; reaching investors where they're scrolling.</p></div>
+                <div class="card animate-in"><div class="icon-circle blue">&#x1F4E7;</div><h3 style="font-size: 16px; margin-bottom: 8px;">Email Newsletter</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Build a subscriber list from blog traffic. Weekly insider trade roundups delivered straight to investors' inboxes.</p></div>
+                <div class="card animate-in"><div class="icon-circle green">&#x1F3A7;</div><h3 style="font-size: 16px; margin-bottom: 8px;">Podcast / Audio</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Weekly audio recaps of top insider trades distributed on podcast platforms &mdash; another channel, same data.</p></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in text-center"><div class="card" style="display: inline-block; background: var(--bg);"><p style="font-size: 15px; color: var(--text-secondary);">Phase 1 first. Prove the engine, then scale it. Phase 2 is scoped and priced separately.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12 - TIMELINE -->
+    <div class="slide" data-slide="12">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">How Fast We Move</p><h2 style="margin-bottom: 48px;">Live in 4 Weeks</h2></div>
+            <div class="timeline animate-in">
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 1</div><div class="timeline-title">Infrastructure Setup</div><div class="timeline-desc">Content pipeline built, SEO audit, social accounts created, ASO review, AppAdvice submission.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 2</div><div class="timeline-title">Build &amp; Configure</div><div class="timeline-desc">Article templates, posting schedules, engagement rules, first content batch created. You approve quality.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 3</div><div class="timeline-title">Go Live</div><div class="timeline-desc">Content publishing begins. Social posting active. Engagement automation running. First traffic flowing.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 4</div><div class="timeline-title">Full Volume</div><div class="timeline-desc">20-30 articles/week. All platforms active. AppAdvice campaign live. The engine is running.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13 - WHAT'S INCLUDED -->
+    <div class="slide" data-slide="13">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Everything You Get</p><h2 style="margin-bottom: 40px;">Full-Stack Content Engine</h2></div>
+            <div class="card-grid cols-2">
+                <div class="animate-in"><ul class="check-list">
+                    <li>AI content pipeline connected to your trade data</li>
+                    <li>SEO-optimized blog setup and management</li>
+                    <li>Multi-platform social account network</li>
+                    <li>Automated posting across 5+ platforms</li>
+                </ul></div>
+                <div class="animate-in"><ul class="check-list">
+                    <li>Engagement automation on Reddit/Twitter/StockTwits</li>
+                    <li>ASO optimization for your app store listing</li>
+                    <li>AppAdvice + Indie App Santa campaigns</li>
+                    <li>Weekly performance reporting</li>
+                </ul></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><div class="card" style="background: var(--bg); text-align: center;"><p style="font-size: 15px; color: var(--text-secondary);"><strong>You own all content and accounts.</strong>&ensp;Even if you stop working with us, everything stays yours.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14 - PLATFORM COSTS -->
+    <div class="slide" data-slide="14">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Third-Party Tools (You Own These)</p><h2 style="margin-bottom: 40px;">Platform Costs</h2></div>
+            <div class="animate-in"><div class="card" style="max-width: 700px; margin: 0 auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Content AI tools (GPT/Claude API)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Social media scheduling/automation</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$80/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">SEO tools (Ahrefs or SEMrush)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$100/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Social account infrastructure</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Blog hosting</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$20/mo</td></tr>
+                    </tbody>
+                    <tfoot><tr><td style="padding: 16px 0 0; font-size: 17px; font-weight: 700;">Total</td><td style="padding: 16px 0 0; font-size: 17px; font-weight: 700; text-align: right;">~$300-350/mo</td></tr></tfoot>
+                </table>
+            </div></div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><p style="font-size: 14px; color: var(--text-muted);">Direct subscriptions in your name. Full ownership regardless of engagement.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15 - PRICING -->
+    <div class="slide" data-slide="15">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Investment</p><h2 style="margin-bottom: 48px;">Two Ways to Work Together</h2></div>
+            <div class="pricing-grid animate-in">
+                <div class="pricing-card">
+                    <div class="pricing-name">Option 1: One-Time Build</div>
+                    <div class="pricing-desc">We build it. You run it.</div>
+                    <div style="margin: 20px 0;"><span class="pricing-amount">$7,500</span><span class="pricing-period">&ensp;one-time</span></div>
+                    <ul class="pricing-features">
+                        <li>Full system build &amp; configuration</li>
+                        <li>Content generation pipeline</li>
+                        <li>Social account network setup</li>
+                        <li>Engagement automation config</li>
+                        <li>ASO optimization</li>
+                        <li>Training + 2 weeks post-handoff support</li>
+                    </ul>
+                    <div style="background: #FEF2F2; border-radius: 8px; padding: 12px 16px; margin-top: 20px;"><p style="font-size: 13px; color: #991B1B; line-height: 1.5;">No ongoing content creation or optimization. Performance depends on your effort.</p></div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">You manage day-to-day operations (~10-15 hrs/week)</p>
+                </div>
+                <div class="pricing-card recommended">
+                    <div class="pricing-badge">RECOMMENDED</div>
+                    <div class="pricing-name">Option 2: Fully Managed</div>
+                    <div class="pricing-desc">We build it. We run it. You build your product.</div>
+                    <div style="margin: 20px 0;"><span class="pricing-amount">$2,500</span><span class="pricing-period">&ensp;/month</span></div>
+                    <div style="background: var(--green-light); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+                        <p style="font-size: 14px; color: #065F46; font-weight: 600; margin-bottom: 2px;">15+ hours/week of dedicated team effort</p>
+                        <p style="font-size: 13px; color: #047857;">Content, distribution, engagement, and growth &mdash; fully operated</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Everything in Option 1</li>
+                        <li>20-30 articles/week generated and published</li>
+                        <li>All social posting managed across platforms</li>
+                        <li>Engagement automation operated daily</li>
+                        <li><strong>ASO + AppAdvice campaigns run for you</strong></li>
+                        <li>Continuous A/B testing and optimization</li>
+                        <li>Weekly performance reports</li>
+                    </ul>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 16px;">6-month commitment&ensp;&middot;&ensp;Minimal time from you&ensp;&middot;&ensp;Month 1 billed as $1,250 upfront + $1,250 end of month</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 16 - ROI -->
+    <div class="slide" data-slide="16">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Return on Investment</p><h2 style="margin-bottom: 48px;">Replace Paid Ads<br><span class="serif">Permanently</span></h2></div>
+            <div class="card-grid cols-3 animate-in">
+                <div class="card stat"><div class="stat-label" style="margin-bottom: 12px; margin-top: 0;">Paid ads cost per download</div><div class="stat-number" style="font-size: 36px; color: #DC2626;">$2-5</div><p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">and stops when you stop paying</p></div>
+                <div class="card stat" style="border: 2px solid var(--accent);"><div class="stat-label" style="margin-bottom: 12px; margin-top: 0;">Our cost per download</div><div class="stat-number" style="font-size: 36px; color: var(--green);">$0.13-0.25</div><p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">at $2,500/mo for 10-20K downloads</p></div>
+                <div class="card stat" style="border: 2px solid var(--accent);"><div class="stat-label" style="margin-bottom: 12px; margin-top: 0;">Long-term cost</div><div class="stat-number" style="font-size: 36px; color: var(--green);">$0</div><p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">organic content compounds forever</p></div>
+            </div>
+            <div class="spacer-40"></div>
+            <div class="animate-in"><div class="card" style="max-width: 700px; margin: 0 auto; background: var(--accent); color: white; text-align: left;"><p style="font-size: 17px; line-height: 1.7; color: rgba(255,255,255,0.9);">Paid ads stop the moment you stop paying. SEO content and social presence keep working for you <strong style="color: white;">forever</strong>. You're building an asset, not renting traffic.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 17 - CLOSING -->
+    <div class="slide" data-slide="17">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 24px;">Let's Build<br><span class="serif" style="font-weight: 600;">Your Content Engine</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 600px; margin: 0 auto;">Your app has the data. Your audience is searching.<br>The only question is &mdash; how fast do you want to grow?</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in">
+                <div style="display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Email</p><p style="font-size: 16px; font-weight: 600;">Let's connect</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Next Step</p><p style="font-size: 16px; font-weight: 600;">Agreement sent today</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Go Live</p><p style="font-size: 16px; font-weight: 600;">Within 4 weeks</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION BAR -->
+<nav class="nav-bar">
+    <div class="nav-brand">Small Group</div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="nav-counter" id="counter">1 / 17</span>
+        <button class="nav-btn" id="nextBtn" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+</nav>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    const total = slides.length;
+    let current = 0;
+
+    function revealChildren(slide) {
+        const items = slide.querySelectorAll('.animate-in');
+        items.forEach((el, i) => { el.classList.remove('visible'); void el.offsetHeight; setTimeout(() => { el.classList.add('visible'); }, 50 + i * 70); });
+    }
+    function hideChildren(slide) { slide.querySelectorAll('.animate-in').forEach(el => { el.classList.remove('visible'); }); }
+    function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        const goingForward = index > current;
+        hideChildren(slides[current]);
+        slides[current].classList.remove('active', 'prev');
+        if (goingForward) slides[current].classList.add('prev');
+        current = index;
+        slides[current].classList.remove('prev');
+        slides[current].classList.add('active');
+        revealChildren(slides[current]);
+        counter.textContent = `${current + 1} / ${total}`;
+        progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+    document.getElementById('nextBtn').addEventListener('click', next);
+    document.getElementById('prevBtn').addEventListener('click', prev);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); } });
+    slides[0].classList.add('active');
+    revealChildren(slides[0]);
+    counter.textContent = `1 / ${total}`;
+    progressBar.style.width = `${(1 / total) * 100}%`;
+</script>
+</body>
+</html>
