@@ -31,61 +31,21 @@ jobs:
         run: |
           mkdir _site
           cp pitch_*.html _site/ 2>/dev/null || true
-          # Generate index page listing all pitch decks
+          # Generic landing page — no links to any pitches
           cat > _site/index.html << 'HEREDOC'
           <!DOCTYPE html>
           <html lang="en">
           <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Small Group — Pitch Decks</title>
-            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+            <title>Small Group</title>
             <style>
               *{margin:0;padding:0;box-sizing:border-box}
-              body{font-family:'Inter',sans-serif;background:#FAFAFA;color:#111;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px}
-              h1{font-size:2rem;font-weight:700;margin-bottom:8px;letter-spacing:-0.02em}
-              .sub{color:#555;margin-bottom:48px}
-              .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:700px;width:100%}
-              a.card{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:28px;text-decoration:none;color:inherit;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:box-shadow .2s,transform .2s}
-              a.card:hover{box-shadow:0 4px 6px rgba(0,0,0,.05);transform:translateY(-2px)}
-              .card h2{font-size:1.15rem;font-weight:600}
+              body{font-family:-apple-system,sans-serif;background:#FAFAFA;color:#111;min-height:100vh;display:flex;align-items:center;justify-content:center}
+              p{font-size:1.1rem;color:#999}
             </style>
           </head>
-          <body>
-            <h1>Small Group</h1>
-            <p class="sub">Client Pitch Decks</p>
-            <div class="cards" id="cards"></div>
-            <script>
-          HEREDOC
-
-          # Inject links for each pitch_*.html file
-          echo '      const files = [' >> _site/index.html
-          for f in _site/pitch_*.html; do
-            [ -f "$f" ] || continue
-            base=$(basename "$f")
-            # Extract name from filename: pitch_ernest.html -> Ernest
-            name=$(echo "$base" | sed 's/^pitch_//;s/\.html$//' | sed 's/_/ /g')
-            # Capitalize first letter of each word
-            name=$(echo "$name" | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2))}1')
-            echo "        {file: \"$base\", name: \"$name\"}," >> _site/index.html
-          done
-          echo '      ];' >> _site/index.html
-
-          cat >> _site/index.html << 'HEREDOC'
-              const container = document.getElementById('cards');
-              if (files.length === 0) {
-                container.innerHTML = '<p style="color:#999">No pitch decks deployed yet.</p>';
-              } else {
-                files.forEach(f => {
-                  const a = document.createElement('a');
-                  a.className = 'card';
-                  a.href = f.file;
-                  a.innerHTML = `<h2>${f.name}</h2>`;
-                  container.appendChild(a);
-                });
-              }
-            </script>
-          </body>
+          <body><p>Nothing to see here.</p></body>
           </html>
           HEREDOC
 
