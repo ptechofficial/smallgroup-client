@@ -1,11 +1,11 @@
 # Pitch Deck Registry
 
-Maps hashed filenames to clients. This file is NOT deployed to GitHub Pages.
+Maps hashed filenames to clients. This file is NOT deployed publicly.
 
 | Hash | Client | File | URL |
 |------|--------|------|-----|
-| `1e79137d` | Ernest Chuang | `pitch_1e79137d.html` | `https://ptechofficial.github.io/claude-sales/pitch_1e79137d.html` |
-| `cb07901c` | Joseph Cyriac | `pitch_cb07901c.html` | `https://ptechofficial.github.io/claude-sales/pitch_cb07901c.html` |
+| `1e79137d` | Ernest Chuang | `pitch_1e79137d.html` | `https://smallgroup-client.vercel.app/pitch_1e79137d` |
+| `cb07901c` | Joseph Cyriac | `pitch_cb07901c.html` | `https://smallgroup-client.vercel.app/pitch_cb07901c` |
 
 ## Adding a new pitch
 
