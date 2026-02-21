@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Group — Matthew Smith</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAFA; --surface: #FFFFFF; --text-primary: #111111;
+            --text-secondary: #555555; --text-muted: #999999;
+            --accent: #1A1A2E; --accent-light: #16213E; --highlight: #0F3460;
+            --blue: #2563EB; --blue-light: #EFF6FF;
+            --green: #059669; --green-light: #ECFDF5;
+            --orange: #D97706; --orange-light: #FFFBEB;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .deck { width: 100%; height: 100%; position: relative; }
+        .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; visibility: hidden; transform: translateX(40px); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); background: var(--bg); }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+        .slide.prev { transform: translateX(-40px); }
+        .slide-inner { max-width: 1100px; width: 100%; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; user-select: none; }
+        .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; color: var(--accent); }
+        .nav-controls { display: flex; align-items: center; gap: 16px; }
+        .nav-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-primary); }
+        .nav-btn:hover { background: var(--bg); border-color: #ccc; }
+        .nav-btn svg { width: 16px; height: 16px; }
+        .nav-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); z-index: 100; }
+        .serif { font-family: 'Playfair Display', Georgia, serif; }
+        h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+        h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
+        h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+        p { font-size: 18px; line-height: 1.6; color: var(--text-secondary); }
+        .label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+        .subtitle { font-size: 22px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+        .card-grid { display: grid; gap: 20px; }
+        .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .card-grid.cols-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
+        .icon-circle { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+        .icon-circle.blue { background: var(--blue-light); }
+        .icon-circle.green { background: var(--green-light); }
+        .icon-circle.orange { background: var(--orange-light); }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; }
+        .badge.blue { background: var(--blue-light); color: var(--blue); }
+        .badge.green { background: var(--green-light); color: var(--green); }
+        .spacer-16 { height: 16px; } .spacer-24 { height: 24px; } .spacer-32 { height: 32px; } .spacer-40 { height: 40px; } .spacer-48 { height: 48px; }
+        .text-center { text-align: center; }
+        .check-list { list-style: none; }
+        .check-list li { padding: 10px 0; font-size: 17px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 12px; line-height: 1.4; }
+        .check-list li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+        .timeline { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0; position: relative; }
+        .timeline::before { content: ''; position: absolute; top: 24px; left: 24px; right: 24px; height: 2px; background: var(--border); }
+        .timeline-item { position: relative; padding: 0 16px; }
+        .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-bottom: 20px; position: relative; z-index: 2; margin-left: 8px; }
+        .timeline-week { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        .timeline-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .timeline-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+        .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
+        .vs-block { padding: 32px; border-radius: var(--radius); }
+        .vs-block.before { background: #FEF2F2; border: 1px solid #FECACA; }
+        .vs-block.after { background: var(--green-light); border: 1px solid #A7F3D0; }
+        .vs-divider { font-size: 24px; font-weight: 700; color: var(--text-muted); }
+        .flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 22px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); }
+        .flow-arrow { color: var(--text-muted); font-size: 18px; }
+        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .pricing-card { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 40px 32px; position: relative; }
+        .pricing-card.recommended { border-color: var(--accent); }
+        .pricing-card.recommended .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 16px; border-radius: 100px; }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .pricing-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+        .pricing-amount { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; }
+        .pricing-period { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-features { list-style: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .pricing-features li { padding: 8px 0; font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+        .pricing-features li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 14px; }
+        .pillar-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .pillar-tag .num { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .pillar-tag .text { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+        .comparison { width: 100%; border-collapse: separate; border-spacing: 0; }
+        .comparison th, .comparison td { padding: 16px 24px; text-align: left; font-size: 15px; border-bottom: 1px solid var(--border); }
+        .comparison th { font-weight: 600; color: var(--text-muted); font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; background: var(--bg); }
+        .comparison td { color: var(--text-secondary); }
+        .comparison td:first-child { font-weight: 500; color: var(--text-primary); }
+        .comparison .highlight-col { background: var(--blue-light); }
+        .comparison .highlight-col-header { background: var(--blue); color: white !important; border-radius: 12px 12px 0 0; }
+        .animate-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+        .animate-in.visible { opacity: 1; transform: translateY(0); }
+        @media (max-width: 900px) {
+            .slide { padding: 40px 32px; } h1 { font-size: 40px; } h2 { font-size: 32px; }
+            .card-grid.cols-3, .card-grid.cols-4, .card-grid.cols-5 { grid-template-columns: 1fr 1fr; }
+            .timeline { grid-template-columns: 1fr 1fr; gap: 24px; } .timeline::before { display: none; }
+            .pricing-grid { grid-template-columns: 1fr; } .vs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="deck" id="deck">
+
+    <!-- SLIDE 1 - TITLE -->
+    <div class="slide active" data-slide="1">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 20px;">Your Ad Creative Automation System<br><span class="serif" style="font-weight: 600;">for Roofing &amp; Home Improvement</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 640px; margin: 0 auto;">A tailored strategy for Matt Smith Consulting</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in"><p style="font-size: 15px; color: var(--text-muted);">Prepared for Matthew Smith&ensp;&middot;&ensp;February 21, 2026</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2 - THE GAP -->
+    <div class="slide" data-slide="2">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The Challenge</p><h2 style="margin-bottom: 48px;">From &ldquo;Very Systematized but Very Manual&rdquo;<br>to Fully Automated</h2></div>
+            <div class="vs-grid animate-in">
+                <div class="vs-block before">
+                    <p class="label" style="color: #DC2626; margin-bottom: 16px;">Today</p>
+                    <h3 style="font-size: 36px; font-weight: 800; color: #991B1B; margin-bottom: 16px;">Manual</h3>
+                    <p style="font-size: 16px; color: #991B1B;">across the board</p>
+                    <div style="height: 16px;"></div>
+                    <p style="font-size: 14px; color: #B91C1C; line-height: 1.6;">Manual ad creation for 50 clients. Content pulled from client Facebook pages one by one. Your own content posted manually every day. Client reporting barely exists.</p>
+                </div>
+                <div class="vs-divider">&rarr;</div>
+                <div class="vs-block after">
+                    <p class="label" style="color: var(--green); margin-bottom: 16px;">With Small Group</p>
+                    <h3 style="font-size: 36px; font-weight: 800; color: #065F46; margin-bottom: 16px;">Automated</h3>
+                    <p style="font-size: 16px; color: #065F46;">at scale, every week</p>
+                    <div style="height: 16px;"></div>
+                    <p style="font-size: 14px; color: #047857; line-height: 1.6;">AI generates ad creatives from your proven vault. Client content created and deployed at scale. Your personal brand content runs on autopilot. Automated performance reports delivered weekly.</p>
+                </div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in text-center"><p style="font-size: 16px; color: var(--text-muted);"><strong>Your ad vault has 6.5 years of proven winners.</strong>&ensp;We turn it into an automated creative engine.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3 - SYSTEM OVERVIEW -->
+    <div class="slide" data-slide="3">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The System</p><h2 style="margin-bottom: 48px;">Three Pillars That Scale Your Agency</h2></div>
+            <div class="card-grid cols-3">
+                <div class="card animate-in" style="border-top: 3px solid var(--blue); padding: 24px;"><div class="icon-circle blue">&#x1F3AF;</div><h3 style="font-size: 15px; margin-bottom: 6px;">AI Ad Creative Engine</h3><p style="font-size: 13px;">Your proven ad vault powers AI-generated creatives for every client.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--green); padding: 24px;"><div class="icon-circle green">&#x1F4F1;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Personal Content Automation</h3><p style="font-size: 13px;">Your daily organic content created and posted automatically.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--orange); padding: 24px;"><div class="icon-circle orange">&#x1F4CA;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Client Reporting System</h3><p style="font-size: 13px;">Weekly performance reports generated and sent without lifting a finger.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4 - PILLAR 1: AI AD CREATIVE ENGINE -->
+    <div class="slide" data-slide="4">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">1</div><div class="text">Pillar One</div></div>
+                <h2 style="margin-bottom: 12px;">AI Ad Creative Engine</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">You have hundreds and hundreds of proven winners. We train AI on your vault to generate new creatives &mdash; at scale.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Ad Vault Intelligence</h3>
+                    <ul class="check-list">
+                        <li>Scan and categorize hundreds of proven winners</li>
+                        <li>Identify patterns in top-performing copy</li>
+                        <li>Match ad styles to client industries</li>
+                        <li>Track performance data per ad template</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Creative Generation at Scale</h3>
+                    <ul class="check-list">
+                        <li>AI generates new ad variations from winning patterns</li>
+                        <li>Personal/relatable ads, direct response, testimonial &amp; story-based</li>
+                        <li>Customized to each client's brand and business</li>
+                        <li>Arcads AI integration for talking head videos</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5 - PILLAR 2: PERSONAL CONTENT AUTOMATION -->
+    <div class="slide" data-slide="5">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">2</div><div class="text">Pillar Two</div></div>
+                <h2 style="margin-bottom: 12px;">Personal Content Automation</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">You said it yourself &mdash; &ldquo;creating the content and posting and doing all that manually&rdquo; is time consuming. We fix that.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Content Engine for Your Brand</h3>
+                    <ul class="check-list">
+                        <li>Auto-generate posts across your 4-5 content categories</li>
+                        <li>Personal/family stories, motivation, testimonials, industry insights</li>
+                        <li>Mix of short-form text, memes, long-form with images</li>
+                        <li>Maintain your voice and brand personality</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Automated Distribution</h3>
+                    <ul class="check-list">
+                        <li>Schedule and post daily across all platforms</li>
+                        <li>Repurpose vault content into fresh formats</li>
+                        <li>Consistent posting even when you're busy</li>
+                        <li>Drive inbound leads to your GHL booking link</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6 - PILLAR 3: CLIENT REPORTING SYSTEM -->
+    <div class="slide" data-slide="6">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">3</div><div class="text">Pillar Three</div></div>
+                <h2 style="margin-bottom: 12px;">Client Reporting System</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">You &ldquo;don't have much in place&rdquo; for reporting. We build it once, and it runs every week &mdash; automatically.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Automated Data Collection</h3>
+                    <ul class="check-list">
+                        <li>Pull performance metrics from Meta ad accounts</li>
+                        <li>Track leads generated, cost per lead, ROAS</li>
+                        <li>Aggregate data across all 50 client accounts</li>
+                        <li>Historical performance comparison</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Report Generation &amp; Delivery</h3>
+                    <ul class="check-list">
+                        <li>Branded PDF reports generated automatically</li>
+                        <li>Customized per client with their metrics</li>
+                        <li>Scheduled weekly/monthly delivery</li>
+                        <li>Your wife saves hours on client communication</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7 - PROJECTED RESULTS -->
+    <div class="slide" data-slide="7">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Your Projected Impact</p><h2 style="margin-bottom: 48px;">The Numbers Behind<br><span class="serif">The System</span></h2></div>
+            <div class="card-grid cols-4 animate-in">
+                <div class="card stat"><div class="stat-number">50+</div><div class="stat-label">Client ad sets managed</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--blue);">10x</div><div class="stat-label">Faster creative production</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--green);">15+</div><div class="stat-label">Hours saved per week</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--accent);">100%</div><div class="stat-label">Client reporting coverage</div></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><div class="card" style="background: var(--bg); text-align: left; max-width: 700px; margin: 0 auto;"><p style="font-size: 15px; color: var(--text-secondary); line-height: 1.7;">Based on your current client volume and manual workload. <strong>Peak season starts in weeks</strong> &mdash; every hour you save on creative production is an hour you can spend closing new retainer clients at $3,000/mo.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8 - TIMELINE -->
+    <div class="slide" data-slide="8">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">How Fast We Move</p><h2 style="margin-bottom: 12px;">Live in 4 Weeks</h2><p style="max-width: 700px; margin-bottom: 40px; color: var(--accent); font-weight: 600;">Ready before peak season ramps in March/April.</p></div>
+            <div class="timeline animate-in">
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 1</div><div class="timeline-title">Infrastructure Setup</div><div class="timeline-desc">Ad vault ingestion, AI training on winning patterns, GHL and Meta integrations mapped.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 2</div><div class="timeline-title">Build &amp; Configure</div><div class="timeline-desc">Creative generation pipeline built, content calendar set up, reporting templates designed.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 3</div><div class="timeline-title">Go Live</div><div class="timeline-desc">First AI-generated creatives reviewed and approved, personal content posting begins, test reports sent.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 4</div><div class="timeline-title">Full Volume</div><div class="timeline-desc">All client accounts active, daily content running, weekly reports automated.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9 - WHAT'S INCLUDED -->
+    <div class="slide" data-slide="9">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Everything You Get</p><h2 style="margin-bottom: 40px;">Full Ad Creative Automation System</h2></div>
+            <div class="card-grid cols-2">
+                <div class="animate-in"><ul class="check-list">
+                    <li>AI ad creative generation pipeline</li>
+                    <li>Ad vault scanning and pattern analysis</li>
+                    <li>Personal content automation system</li>
+                    <li>Multi-platform posting automation</li>
+                </ul></div>
+                <div class="animate-in"><ul class="check-list">
+                    <li>Client reporting dashboard and automation</li>
+                    <li>Arcads AI integration for video content</li>
+                    <li>Go High Level workflow configuration</li>
+                    <li>Weekly performance reporting</li>
+                </ul></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><div class="card" style="background: var(--bg); text-align: center;"><p style="font-size: 15px; color: var(--text-secondary);"><strong>You own all automations, templates, and accounts.</strong>&ensp;Even if you stop working with us, everything stays yours.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10 - TOOL COSTS -->
+    <div class="slide" data-slide="10">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Third-Party Tools (You Own These)</p><h2 style="margin-bottom: 40px;">Platform Costs</h2></div>
+            <div class="animate-in"><div class="card" style="max-width: 700px; margin: 0 auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">AI tools (Claude/GPT API)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Arcads AI</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Automation platform (n8n/Make)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$30/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Social scheduling tools</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$30/mo</td></tr>
+                    </tbody>
+                    <tfoot><tr><td style="padding: 16px 0 0; font-size: 17px; font-weight: 700;">Total</td><td style="padding: 16px 0 0; font-size: 17px; font-weight: 700; text-align: right;">~$160/mo</td></tr></tfoot>
+                </table>
+            </div></div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><p style="font-size: 14px; color: var(--text-muted);">Direct subscriptions in your name. Full ownership regardless of engagement.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11 - PRICING -->
+    <div class="slide" data-slide="11">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Investment</p><h2 style="margin-bottom: 48px;">Two Ways to Work Together</h2></div>
+            <div class="pricing-grid animate-in">
+                <div class="pricing-card">
+                    <div class="pricing-name">Option 1: One-Time Build</div>
+                    <div class="pricing-desc">We build it. You run it.</div>
+                    <div style="margin: 20px 0;"><span class="pricing-amount">$7,500</span><span class="pricing-period">&ensp;one-time</span></div>
+                    <ul class="pricing-features">
+                        <li>Full system build &amp; configuration</li>
+                        <li>Ad creative generation pipeline</li>
+                        <li>Content automation setup</li>
+                        <li>Reporting system build</li>
+                        <li>Training + 2 weeks post-handoff support</li>
+                    </ul>
+                    <div style="background: #FEF2F2; border-radius: 8px; padding: 12px 16px; margin-top: 20px;"><p style="font-size: 13px; color: #991B1B; line-height: 1.5;">No ongoing management or optimization. Performance depends on your effort.</p></div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">You manage day-to-day operations (~8-10 hrs/week)</p>
+                </div>
+                <div class="pricing-card recommended">
+                    <div class="pricing-badge">RECOMMENDED</div>
+                    <div class="pricing-name">Option 2: Fully Managed</div>
+                    <div class="pricing-desc">We build it. We run it. You focus on closing deals.</div>
+                    <div style="margin: 20px 0;"><span class="pricing-amount">$2,500</span><span class="pricing-period">&ensp;/month</span></div>
+                    <div style="background: var(--green-light); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+                        <p style="font-size: 14px; color: #065F46; font-weight: 600; margin-bottom: 2px;">20+ hours/week of dedicated team effort</p>
+                        <p style="font-size: 13px; color: #047857;">Ad creatives, content, reporting &mdash; fully operated</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Everything in Option 1</li>
+                        <li>AI ad creatives generated weekly for all clients</li>
+                        <li>Personal content created and posted daily</li>
+                        <li>All client reports generated and delivered</li>
+                        <li>Continuous optimization</li>
+                        <li>Weekly performance reports</li>
+                    </ul>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 16px;">6-month commitment&ensp;&middot;&ensp;Minimal time from you&ensp;&middot;&ensp;Month 1 billed as $1,250 upfront + $1,250 end of month</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12 - ROI -->
+    <div class="slide" data-slide="12">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Return on Investment</p><h2 style="margin-bottom: 48px;">One New Client<br><span class="serif">Pays for Everything</span></h2></div>
+            <div class="card-grid cols-3 animate-in">
+                <div class="card stat"><div class="stat-label" style="margin-bottom: 12px; margin-top: 0;">Hiring a content person</div><div class="stat-number" style="font-size: 36px; color: #DC2626;">$4,000+</div><p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">salary + management overhead</p></div>
+                <div class="card stat" style="border: 2px solid var(--accent);"><div class="stat-label" style="margin-bottom: 12px; margin-top: 0;">Small Group (Managed)</div><div class="stat-number" style="font-size: 36px; color: var(--green);">$2,500</div><p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">full creative team, no management</p></div>
+                <div class="card stat" style="border: 2px solid var(--accent);"><div class="stat-label" style="margin-bottom: 12px; margin-top: 0;">Your revenue per client</div><div class="stat-number" style="font-size: 36px; color: var(--green);">$3,000</div><p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">system pays for itself with 1 client</p></div>
+            </div>
+            <div class="spacer-40"></div>
+            <div class="animate-in"><div class="card" style="max-width: 700px; margin: 0 auto; background: var(--accent); color: white; text-align: left;"><p style="font-size: 17px; line-height: 1.7; color: rgba(255,255,255,0.9);">You charge clients $3,000 per month. Our system costs $2,500. Land one additional client from your automated content &mdash; and the entire system is paid for. Everything after that is <strong style="color: white;">pure margin</strong>.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13 - PHASE 2 VISION -->
+    <div class="slide" data-slide="13">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">What Comes Next</p><h2 style="margin-bottom: 12px;">Phase 2: Scale &amp; Expand</h2><p style="max-width: 700px; margin-bottom: 40px;">Once the engine is running, we unlock additional growth channels.</p></div>
+            <div class="card-grid cols-3">
+                <div class="card animate-in"><div class="icon-circle orange">&#x1F4E1;</div><h3 style="font-size: 16px; margin-bottom: 8px;">LinkedIn Lead Gen</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Automated outreach to roofers and home improvement companies. Build pipeline beyond organic inbound.</p></div>
+                <div class="card animate-in"><div class="icon-circle blue">&#x1F4E7;</div><h3 style="font-size: 16px; margin-bottom: 8px;">Cold Email System</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Warm email sequences to former clients and prospects. Reactivate relationships at scale.</p></div>
+                <div class="card animate-in"><div class="icon-circle green">&#x1F50D;</div><h3 style="font-size: 16px; margin-bottom: 8px;">SEO &amp; LLM Visibility</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Get your clients found on Google and ChatGPT. New revenue stream from existing relationships.</p></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in text-center"><div class="card" style="display: inline-block; background: var(--bg);"><p style="font-size: 15px; color: var(--text-secondary);">Phase 1 first. Prove the engine, then scale it. Phase 2 is scoped and priced separately.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14 - CLOSING -->
+    <div class="slide" data-slide="14">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 24px;">Let's Build<br><span class="serif" style="font-weight: 600;">Your Ad Creative Engine</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 600px; margin: 0 auto;">Your ad vault has 6.5 years of proven winners. Your peak season starts in weeks.<br>The only question is &mdash; how fast do you want to move?</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in">
+                <div style="display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Email</p><p style="font-size: 16px; font-weight: 600;">Let's connect</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Next Step</p><p style="font-size: 16px; font-weight: 600;">Agreement sent today</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Go Live</p><p style="font-size: 16px; font-weight: 600;">Before peak season</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION BAR -->
+<nav class="nav-bar">
+    <div class="nav-brand">Small Group</div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="nav-counter" id="counter">1 / 14</span>
+        <button class="nav-btn" id="nextBtn" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+</nav>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    const total = slides.length;
+    let current = 0;
+
+    function revealChildren(slide) {
+        const items = slide.querySelectorAll('.animate-in');
+        items.forEach((el, i) => { el.classList.remove('visible'); void el.offsetHeight; setTimeout(() => { el.classList.add('visible'); }, 50 + i * 70); });
+    }
+    function hideChildren(slide) { slide.querySelectorAll('.animate-in').forEach(el => { el.classList.remove('visible'); }); }
+    function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        const goingForward = index > current;
+        hideChildren(slides[current]);
+        slides[current].classList.remove('active', 'prev');
+        if (goingForward) slides[current].classList.add('prev');
+        current = index;
+        slides[current].classList.remove('prev');
+        slides[current].classList.add('active');
+        revealChildren(slides[current]);
+        counter.textContent = `${current + 1} / ${total}`;
+        progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+    document.getElementById('nextBtn').addEventListener('click', next);
+    document.getElementById('prevBtn').addEventListener('click', prev);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); } });
+    slides[0].classList.add('active');
+    revealChildren(slides[0]);
+    counter.textContent = `1 / ${total}`;
+    progressBar.style.width = `${(1 / total) * 100}%`;
+</script>
+</body>
+</html>
