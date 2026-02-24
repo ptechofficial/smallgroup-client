@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Group — Stratgo Media</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAFA; --surface: #FFFFFF; --text-primary: #111111;
+            --text-secondary: #555555; --text-muted: #999999;
+            --accent: #1A1A2E; --accent-light: #16213E; --highlight: #0F3460;
+            --blue: #2563EB; --blue-light: #EFF6FF;
+            --green: #059669; --green-light: #ECFDF5;
+            --orange: #D97706; --orange-light: #FFFBEB;
+            --purple: #7C3AED; --purple-light: #F5F3FF;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .deck { width: 100%; height: 100%; position: relative; }
+        .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; visibility: hidden; transform: translateX(40px); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); background: var(--bg); }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+        .slide.prev { transform: translateX(-40px); }
+        .slide-inner { max-width: 1100px; width: 100%; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; user-select: none; }
+        .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; color: var(--accent); }
+        .nav-controls { display: flex; align-items: center; gap: 16px; }
+        .nav-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-primary); }
+        .nav-btn:hover { background: var(--bg); border-color: #ccc; }
+        .nav-btn svg { width: 16px; height: 16px; }
+        .nav-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); z-index: 100; }
+        .serif { font-family: 'Playfair Display', Georgia, serif; }
+        h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+        h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
+        h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+        p { font-size: 18px; line-height: 1.6; color: var(--text-secondary); }
+        .label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+        .subtitle { font-size: 22px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+        .card-grid { display: grid; gap: 20px; }
+        .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
+        .icon-circle { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+        .icon-circle.blue { background: var(--blue-light); }
+        .icon-circle.green { background: var(--green-light); }
+        .icon-circle.orange { background: var(--orange-light); }
+        .icon-circle.purple { background: var(--purple-light); }
+        .spacer-8 { height: 8px; } .spacer-16 { height: 16px; } .spacer-24 { height: 24px; } .spacer-32 { height: 32px; } .spacer-40 { height: 40px; } .spacer-48 { height: 48px; }
+        .text-center { text-align: center; }
+        .check-list { list-style: none; }
+        .check-list li { padding: 8px 0; font-size: 16px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 12px; line-height: 1.4; }
+        .check-list li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+        .flow { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 18px; font-size: 13px; font-weight: 500; box-shadow: var(--shadow); max-width: 160px; text-align: center; line-height: 1.4; }
+        .flow-arrow { color: var(--text-muted); font-size: 18px; flex-shrink: 0; }
+        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .pricing-card { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 36px 28px; position: relative; }
+        .pricing-card.recommended { border-color: var(--accent); }
+        .pricing-card.recommended .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 16px; border-radius: 100px; }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .pricing-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 20px; }
+        .pricing-amount { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; }
+        .pricing-period { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-features { list-style: none; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+        .pricing-features li { padding: 6px 0; font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+        .pricing-features li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 14px; }
+        .pillar-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .pillar-tag .num { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .pillar-tag .text { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+        .section-divider { display: flex; align-items: center; gap: 16px; margin-bottom: 16px; }
+        .section-divider .line { flex: 1; height: 1px; background: var(--border); }
+        .section-divider .section-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 12px; border-radius: 6px; }
+        .section-divider .section-label.blue { background: var(--blue-light); color: var(--blue); }
+        .section-divider .section-label.green { background: var(--green-light); color: var(--green); }
+        .section-divider .section-label.orange { background: var(--orange-light); color: var(--orange); }
+        .metric-row { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .metric-row:last-child { border-bottom: none; }
+        .metric-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+        .metric-text { flex: 1; }
+        .metric-text .metric-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+        .metric-text .metric-desc { font-size: 13px; color: var(--text-muted); }
+        .metric-value { font-size: 18px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
+        .animate-in { opacity: 0; transform: translateY(16px); transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1); }
+        .animate-in.visible { opacity: 1; transform: translateY(0); }
+        .summary-table { width: 100%; border-collapse: collapse; }
+        .summary-table th { text-align: left; padding: 12px 16px; font-size: 13px; font-weight: 600; letter-spacing: 0.03em; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid var(--border); }
+        .summary-table td { padding: 14px 16px; font-size: 15px; color: var(--text-secondary); border-bottom: 1px solid var(--border); vertical-align: top; }
+        .summary-table td:first-child { font-weight: 600; color: var(--text-primary); }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+        .badge.blue { background: var(--blue-light); color: var(--blue); }
+        .badge.green { background: var(--green-light); color: var(--green); }
+        .badge.orange { background: var(--orange-light); color: var(--orange); }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="deck">
+
+    <!-- ============================================================
+         SLIDE 1 - TITLE
+         ============================================================ -->
+    <div class="slide active" data-slide="1">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1>3 Systems to Scale<br><span class="serif">Stratgo Media</span></h1></div>
+            <div class="spacer-24"></div>
+            <div class="animate-in"><p class="subtitle">Ad Intelligence &middot; Lead Generation &middot; Website Automation</p></div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><p style="font-size: 14px; color: var(--text-muted);">Prepared for Shriya Yerrabelly &middot; February 2026</p></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 2 - OVERVIEW: THE 3 SYSTEMS
+         ============================================================ -->
+    <div class="slide" data-slide="2">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">What We're Building</p><h2 style="margin-bottom: 48px;">Three Independent Systems</h2></div>
+            <div class="card-grid cols-3 animate-in">
+                <div class="card" style="border-top: 3px solid var(--blue);">
+                    <div class="icon-circle blue">&#x1F4CA;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">System 1</h3>
+                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Ad Intelligence</p>
+                    <p style="font-size: 14px;">AI monitors all your campaigns across Meta &amp; Google. Daily reports. Competitor tracking. Optimization alerts.</p>
+                    <div class="spacer-16"></div>
+                    <p style="font-size: 13px; color: var(--text-muted);"><strong>One-time build</strong></p>
+                </div>
+                <div class="card" style="border-top: 3px solid var(--green);">
+                    <div class="icon-circle green">&#x1F4E8;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">System 2</h3>
+                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Lead Generation</p>
+                    <p style="font-size: 14px;">Automated outreach to your ICP. Cold email sequences. LinkedIn engagement. Calls booked on your calendar.</p>
+                    <div class="spacer-16"></div>
+                    <p style="font-size: 13px; color: var(--text-muted);"><strong>One-time build or managed monthly</strong></p>
+                </div>
+                <div class="card" style="border-top: 3px solid var(--orange);">
+                    <div class="icon-circle orange">&#x1F4CB;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">System 3</h3>
+                    <p style="font-size: 20px; font-weight: 700; margin-bottom: 12px; color: var(--text-primary);">Website Automation</p>
+                    <p style="font-size: 14px;">Scheduled popups for all HyperKidz locations. Auto-deploy. Auto-remove. No forgotten updates.</p>
+                    <div class="spacer-16"></div>
+                    <p style="font-size: 13px; color: var(--text-muted);"><strong>One-time build</strong></p>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in"><p style="font-size: 14px; color: var(--text-muted);">Each system is independent. Pick one, two, or all three.</p></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 3 - SYSTEM 1: AD INTELLIGENCE — WHAT & WHY
+         ============================================================ -->
+    <div class="slide" data-slide="3">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label blue">System 1</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 12px;">Ad Intelligence &amp; Optimization</h2>
+                <p style="max-width: 800px; margin-bottom: 36px;">You're running 30+ campaigns across 10 locations on Meta and Google. When someone's on leave for 3 days, campaigns bleed money unchecked. This system watches everything 24/7 and tells your team exactly what needs fixing.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 12px; color: #991B1B;">The Problem</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#x2717;&ensp;Manual monitoring across 30+ campaigns doesn't scale</li>
+                        <li>&#x2717;&ensp;Staff leave = unmonitored ads = wasted budget</li>
+                        <li>&#x2717;&ensp;Manually checking Meta Ad Library for competitors</li>
+                        <li>&#x2717;&ensp;Hiring more people for every 5 new clients kills margins</li>
+                        <li>&#x2717;&ensp;No system to catch budget bleeding in real-time</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 12px; color: #065F46;">What This System Does</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#x2713;&ensp;Monitors every campaign across every client, every day</li>
+                        <li>&#x2713;&ensp;Diagnoses issues: bad creative, low budget, form problems</li>
+                        <li>&#x2713;&ensp;Tracks competitor ads automatically (Sky Zone, Urban Air, etc.)</li>
+                        <li>&#x2713;&ensp;Sends daily action reports to Google Workspace</li>
+                        <li>&#x2713;&ensp;Works for any client, any industry — not just HyperKidz</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 4 - SYSTEM 1: HOW IT WORKS (FLOW)
+         ============================================================ -->
+    <div class="slide" data-slide="4">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label blue">System 1</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 12px;">How It Works</h2>
+                <p style="margin-bottom: 40px;">End-to-end pipeline — from your ad accounts to actionable daily reports.</p>
+            </div>
+            <div class="animate-in">
+                <div class="flow" style="margin-bottom: 32px;">
+                    <div class="flow-step" style="border-color: var(--blue);">&#x1F517;<br><strong>Connect</strong><br>Meta &amp; Google ad accounts for all clients</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x1F4E5;<br><strong>Pull Data</strong><br>Impressions, CTR, reach, conversions, spend — daily</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x1F9E0;<br><strong>AI Analysis</strong><br>Compare metrics against benchmarks &amp; rules</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x1F50D;<br><strong>Competitor Scan</strong><br>Pull competitor ads from Meta Ad Library</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step" style="border-color: var(--green);">&#x1F4E9;<br><strong>Daily Report</strong><br>Pushed to Google Workspace with action items</div>
+                </div>
+            </div>
+            <div class="card-grid cols-3 animate-in">
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 8px;">DIAGNOSIS EXAMPLE</p>
+                    <p style="font-size: 14px; color: var(--text-secondary);">CTR high + Conversions low &rarr; <strong>"Landing page or form issue. Check form fields for HyperKidz Dallas."</strong></p>
+                </div>
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 8px;">DIAGNOSIS EXAMPLE</p>
+                    <p style="font-size: 14px; color: var(--text-secondary);">Reach high + CTR low &rarr; <strong>"Creative underperforming. Competitors using video — consider format change."</strong></p>
+                </div>
+                <div class="card" style="padding: 20px;">
+                    <p style="font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 8px;">DIAGNOSIS EXAMPLE</p>
+                    <p style="font-size: 14px; color: var(--text-secondary);">Reach &amp; Impressions low &rarr; <strong>"Budget too low for target audience size. Recommend increasing to $X."</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 5 - SYSTEM 1: WHAT YOU GET + PRICE
+         ============================================================ -->
+    <div class="slide" data-slide="5">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label blue">System 1</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 36px;">What You Get</h2>
+            </div>
+            <div class="card-grid cols-2 animate-in">
+                <div>
+                    <div class="card" style="margin-bottom: 20px;">
+                        <h3 style="font-size: 16px; margin-bottom: 16px;">Deliverables</h3>
+                        <ul class="check-list">
+                            <li>Daily campaign performance report per client, per location</li>
+                            <li>AI-powered diagnosis with specific fix suggestions</li>
+                            <li>Automated competitor ad tracking (Meta Ad Library)</li>
+                            <li>Weekly competitor creative summary</li>
+                            <li>All reports pushed to Google Workspace</li>
+                            <li>Works across Meta and Google Ads</li>
+                            <li>Scalable to any new client you onboard</li>
+                        </ul>
+                    </div>
+                </div>
+                <div>
+                    <div class="card" style="border: 2px solid var(--blue); text-align: center;">
+                        <p style="font-size: 13px; font-weight: 600; color: var(--blue); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;">Investment</p>
+                        <div style="margin: 16px 0;"><span class="pricing-amount">$2,500</span><span class="pricing-period">&ensp;one-time</span></div>
+                        <div style="background: var(--blue-light); border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; text-align: left;">
+                            <p style="font-size: 13px; color: var(--blue); line-height: 1.6;"><strong>Includes:</strong> Full system build, deployment across all current clients, team training, and 2 weeks post-launch support.</p>
+                        </div>
+                        <p style="font-size: 13px; color: var(--text-muted);">$1,250 upfront &middot; $1,250 on delivery</p>
+                        <div class="spacer-16"></div>
+                        <p style="font-size: 13px; color: var(--text-muted);">Tool costs: ~$70-150/mo<br>(N8N, AI API, hosting — you own these)</p>
+                    </div>
+                    <div class="spacer-16"></div>
+                    <div class="card" style="padding: 20px; background: var(--bg);">
+                        <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;"><strong>System outputs — not revenue guarantees.</strong> The system delivers monitoring, alerts, and competitor data. How your team acts on them drives results.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 6 - SYSTEM 2: LEAD GEN — WHAT & WHY
+         ============================================================ -->
+    <div class="slide" data-slide="6">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label green">System 2</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 12px;">Lead Generation Pipeline</h2>
+                <p style="max-width: 800px; margin-bottom: 36px;">Stratgo Media has grown through word of mouth. That got you HyperKidz and $10k/month. But word of mouth doesn't run on a schedule. This system puts your outreach on autopilot so qualified prospects book calls directly on your calendar.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 12px; color: #991B1B;">The Problem</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#x2717;&ensp;No systematic lead generation — relying on word of mouth</li>
+                        <li>&#x2717;&ensp;No time to build social media, LinkedIn, or email outreach</li>
+                        <li>&#x2717;&ensp;Stuck in operations — can't work ON the business</li>
+                        <li>&#x2717;&ensp;No email system, no CRM, no outreach infrastructure</li>
+                        <li>&#x2717;&ensp;Growth is unpredictable — new clients come randomly</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 12px; color: #065F46;">What This System Does</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#x2713;&ensp;Finds prospects matching your ICP from databases &amp; LinkedIn</li>
+                        <li>&#x2713;&ensp;Runs multi-step cold email sequences automatically</li>
+                        <li>&#x2713;&ensp;Sends LinkedIn connection requests &amp; follow-ups</li>
+                        <li>&#x2713;&ensp;Classifies responses (interested / not now / wrong fit)</li>
+                        <li>&#x2713;&ensp;Books qualified calls directly on your calendar</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 7 - SYSTEM 2: HOW IT WORKS (FLOW)
+         ============================================================ -->
+    <div class="slide" data-slide="7">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label green">System 2</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 12px;">How It Works</h2>
+                <p style="margin-bottom: 36px;">End-to-end pipeline — from ICP targeting to booked calls on your calendar.</p>
+            </div>
+            <div class="animate-in">
+                <div class="flow" style="margin-bottom: 32px;">
+                    <div class="flow-step" style="border-color: var(--green);">&#x1F3AF;<br><strong>ICP Targeting</strong><br>Budding franchisees, FEC &amp; Health/Wellness, 1-2 locations</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x1F50E;<br><strong>Lead Sourcing</strong><br>Pull verified contacts from databases &amp; LinkedIn</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x2709;&#xFE0F;<br><strong>Email Outreach</strong><br>Multi-step sequences, value-first, pain-point driven</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x1F91D;<br><strong>LinkedIn</strong><br>Connection requests, profile engagement, follow-ups</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step" style="border-color: var(--green);">&#x1F4C5;<br><strong>Call Booked</strong><br>Interested prospects land on your calendar</div>
+                </div>
+            </div>
+            <div class="card-grid cols-2 animate-in">
+                <div class="card" style="padding: 24px;">
+                    <h3 style="font-size: 15px; margin-bottom: 12px;">Your ICP (What We Target)</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+                        <li><strong>Who:</strong> Budding franchisees with 1-2 locations</li>
+                        <li><strong>Industry:</strong> FEC (indoor playgrounds, trampoline parks) &amp; Health/Wellness (spas, estheticians)</li>
+                        <li><strong>Where:</strong> USA, Australia, UK, Dubai, Canada</li>
+                        <li><strong>Budget:</strong> Min $3,000/mo service charge, min $3,500 ad spend</li>
+                        <li><strong>Interest:</strong> SEO, PPC, Website, Email &amp; SMS marketing</li>
+                    </ul>
+                </div>
+                <div class="card" style="padding: 24px;">
+                    <h3 style="font-size: 15px; margin-bottom: 12px;">Email Sequence Structure</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 1.8;">
+                        <li><strong>Email 1:</strong> Lead with industry insight &amp; pain point</li>
+                        <li><strong>Email 2:</strong> Value drop — free resource or case context</li>
+                        <li><strong>Email 3:</strong> Social proof &amp; direct CTA to book a call</li>
+                        <li><strong>Email 4:</strong> Gentle follow-up / breakup email</li>
+                        <li><strong>LinkedIn:</strong> Connection + engagement running in parallel</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 8 - SYSTEM 2: WHAT YOU GET + PRICE
+         ============================================================ -->
+    <div class="slide" data-slide="8">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label green">System 2</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 36px;">What You Get</h2>
+            </div>
+            <div class="animate-in">
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <div class="pricing-name">Option A: One-Time Build</div>
+                        <div class="pricing-desc">We build it. You run it.</div>
+                        <div style="margin: 16px 0;"><span class="pricing-amount">$2,000</span><span class="pricing-period">&ensp;one-time</span></div>
+                        <ul class="pricing-features">
+                            <li>Complete outreach infrastructure built for you</li>
+                            <li>Email domains + accounts set up &amp; warmed</li>
+                            <li>ICP lead list sourced and verified</li>
+                            <li>Cold email sequences written and loaded</li>
+                            <li>LinkedIn automation configured</li>
+                            <li>Response classification system</li>
+                            <li>Cal.com / Calendly booking integration</li>
+                            <li>Training + 2 weeks support</li>
+                        </ul>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 16px;">You manage day-to-day outreach (~3-5 hrs/week)</p>
+                    </div>
+                    <div class="pricing-card recommended">
+                        <div class="pricing-badge">RECOMMENDED</div>
+                        <div class="pricing-name">Option B: Fully Managed</div>
+                        <div class="pricing-desc">We build it. We run it. You take the calls.</div>
+                        <div style="margin: 16px 0;"><span class="pricing-amount">$500</span><span class="pricing-period">&ensp;/month</span></div>
+                        <ul class="pricing-features">
+                            <li>Everything in Option A — built for you</li>
+                            <li>We manage all outreach operations</li>
+                            <li>Continuous lead sourcing &amp; list building</li>
+                            <li>A/B testing subject lines &amp; sequences</li>
+                            <li>Response handling &amp; follow-ups</li>
+                            <li>Monthly performance reporting</li>
+                            <li>Your only job: show up to booked calls</li>
+                        </ul>
+                        <p style="font-size: 13px; color: var(--text-muted); margin-top: 16px;">6-month commitment &middot; Starts when you're ready</p>
+                    </div>
+                </div>
+            </div>
+            <div class="spacer-16"></div>
+            <div class="animate-in"><div class="card" style="padding: 16px 24px; background: var(--bg); text-align: center;"><p style="font-size: 14px; color: var(--text-secondary);"><strong>System delivers booked calls.</strong> Close rate depends on your sales conversations. Tool costs: ~$100-200/mo (email infra, LinkedIn tools, databases).</p></div></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 9 - SYSTEM 3: WEBSITE AUTOMATION — WHAT & WHY
+         ============================================================ -->
+    <div class="slide" data-slide="9">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label orange">System 3</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 12px;">Website Popup Automation</h2>
+                <p style="max-width: 800px; margin-bottom: 36px;">A forgotten popup saying "closed today" can cost a HyperKidz location an entire day of walk-in revenue. Across 10 locations, that risk multiplies every week. This system makes it impossible to forget.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 12px; color: #991B1B;">The Problem</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#x2717;&ensp;Popups for closures, weather, private parties need manual removal</li>
+                        <li>&#x2717;&ensp;If someone forgets, clients lose a full day of business</li>
+                        <li>&#x2717;&ensp;Can't manually manage popups across 10+ websites</li>
+                        <li>&#x2717;&ensp;Small mistake, massive revenue impact for the client</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 12px; color: #065F46;">What This System Does</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#x2713;&ensp;Schedule popups via a simple form — any team member</li>
+                        <li>&#x2713;&ensp;Popup deploys automatically at the start time</li>
+                        <li>&#x2713;&ensp;Popup removes automatically at the end time</li>
+                        <li>&#x2713;&ensp;Works with existing PHP / Bootstrap / CSS / HTML stack</li>
+                        <li>&#x2713;&ensp;Covers all HyperKidz locations from one interface</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 10 - SYSTEM 3: HOW IT WORKS + PRICE
+         ============================================================ -->
+    <div class="slide" data-slide="10">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="section-divider"><div class="line"></div><span class="section-label orange">System 3</span><div class="line"></div></div>
+                <h2 style="margin-bottom: 12px;">How It Works</h2>
+                <p style="margin-bottom: 36px;">Simple flow — your team schedules it, the system handles the rest.</p>
+            </div>
+            <div class="animate-in">
+                <div class="flow" style="margin-bottom: 40px;">
+                    <div class="flow-step" style="border-color: var(--orange);">&#x1F4DD;<br><strong>Fill Form</strong><br>Location, message, start time, end time</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x2699;&#xFE0F;<br><strong>System Processes</strong><br>Validates input, schedules deployment</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x1F7E2;<br><strong>Popup Goes Live</strong><br>Deployed to website at start time</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step">&#x23F1;&#xFE0F;<br><strong>Timer Runs</strong><br>System counts down to end time</div>
+                    <div class="flow-arrow">&rarr;</div>
+                    <div class="flow-step" style="border-color: var(--green);">&#x1F534;<br><strong>Auto-Removed</strong><br>Popup disappears. Zero human intervention.</div>
+                </div>
+            </div>
+            <div class="card-grid cols-2 animate-in">
+                <div class="card">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">What You Get</h3>
+                    <ul class="check-list">
+                        <li>Form-based popup scheduling for all locations</li>
+                        <li>Automatic deployment at scheduled start time</li>
+                        <li>Automatic removal at scheduled end time</li>
+                        <li>Popup templates for common scenarios (private party, weather, closure)</li>
+                        <li>Works on existing PHP / Bootstrap stack — no rebuild</li>
+                        <li>Any team member can schedule — no dev needed</li>
+                    </ul>
+                </div>
+                <div class="card" style="border: 2px solid var(--orange); text-align: center;">
+                    <p style="font-size: 13px; font-weight: 600; color: var(--orange); letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px;">Investment</p>
+                    <div style="margin: 16px 0;"><span style="font-size: 24px; font-weight: 700;">Starting at</span><br><span class="pricing-amount">$500</span><span class="pricing-period">&ensp;one-time</span></div>
+                    <div style="background: var(--orange-light); border-radius: 8px; padding: 12px 16px; margin: 16px 0; text-align: left;">
+                        <p style="font-size: 13px; color: #92400E; line-height: 1.6;"><strong>Final quote after reviewing the website codebase.</strong> The existing PHP/Bootstrap/CSS/HTML stack determines the integration complexity.</p>
+                    </div>
+                    <p style="font-size: 13px; color: var(--text-muted);">One-time build &middot; No recurring costs<br>Minimal tool costs (~$10-20/mo hosting)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 11 - SUMMARY: ALL 3 SYSTEMS
+         ============================================================ -->
+    <div class="slide" data-slide="11">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Summary</p><h2 style="margin-bottom: 36px;">All Three Systems at a Glance</h2></div>
+            <div class="animate-in"><div class="card" style="padding: 0; overflow: hidden;">
+                <table class="summary-table">
+                    <thead>
+                        <tr style="background: var(--bg);">
+                            <th style="width: 20%;"></th>
+                            <th style="width: 30%;"><span class="badge blue">System 1</span> Ad Intelligence</th>
+                            <th style="width: 30%;"><span class="badge green">System 2</span> Lead Gen</th>
+                            <th style="width: 20%;"><span class="badge orange">System 3</span> Website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>What it does</td>
+                            <td>Monitors campaigns, diagnoses issues, tracks competitors</td>
+                            <td>Finds prospects, runs outreach, books calls</td>
+                            <td>Schedules &amp; auto-removes website popups</td>
+                        </tr>
+                        <tr>
+                            <td>Output</td>
+                            <td>Daily reports + alerts to Google Workspace</td>
+                            <td>Booked calls on your calendar</td>
+                            <td>Zero forgotten popups</td>
+                        </tr>
+                        <tr>
+                            <td>Pricing</td>
+                            <td><strong>$2,500</strong> one-time</td>
+                            <td><strong>$2,000</strong> one-time<br><em>or $500/mo managed</em></td>
+                            <td><strong>From $500</strong> one-time<br><em>(quote after code review)</em></td>
+                        </tr>
+                        <tr>
+                            <td>Tool costs</td>
+                            <td>~$70-150/mo</td>
+                            <td>~$100-200/mo</td>
+                            <td>~$10-20/mo</td>
+                        </tr>
+                        <tr>
+                            <td>Your time</td>
+                            <td>~1-2 hrs/week reviewing reports</td>
+                            <td>Show up to calls (managed) or ~3-5 hrs/week (DIY)</td>
+                            <td>~5 min per popup scheduled</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div></div>
+            <div class="spacer-24"></div>
+            <div class="animate-in"><div class="card" style="background: var(--accent); color: white; text-align: center; padding: 24px;"><p style="font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.9);">Each system is independent. Start with one, add more when ready. All systems are yours to keep — you own everything we build.</p></div></div>
+        </div>
+    </div>
+
+    <!-- ============================================================
+         SLIDE 12 - CLOSING
+         ============================================================ -->
+    <div class="slide" data-slide="12">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 24px;">Let's Build<br><span class="serif" style="font-weight: 600;">Your Systems</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 600px; margin: 0 auto;">Custom-built for Stratgo Media. You own everything. Pick the system that matters most right now — we start this week.</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in">
+                <div style="display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Next Step</p><p style="font-size: 16px; font-weight: 600;">Pick your system(s)</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Agreement</p><p style="font-size: 16px; font-weight: 600;">Sent today</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Go Live</p><p style="font-size: 16px; font-weight: 600;">Within 4 weeks</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION BAR -->
+<nav class="nav-bar">
+    <div class="nav-brand">Small Group</div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="nav-counter" id="counter">1 / 12</span>
+        <button class="nav-btn" id="nextBtn" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+</nav>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    const total = slides.length;
+    let current = 0;
+
+    function revealChildren(slide) {
+        const items = slide.querySelectorAll('.animate-in');
+        items.forEach((el, i) => { el.classList.remove('visible'); void el.offsetHeight; setTimeout(() => { el.classList.add('visible'); }, 50 + i * 70); });
+    }
+    function hideChildren(slide) { slide.querySelectorAll('.animate-in').forEach(el => { el.classList.remove('visible'); }); }
+    function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        const goingForward = index > current;
+        hideChildren(slides[current]);
+        slides[current].classList.remove('active', 'prev');
+        if (goingForward) slides[current].classList.add('prev');
+        current = index;
+        slides[current].classList.remove('prev');
+        slides[current].classList.add('active');
+        revealChildren(slides[current]);
+        counter.textContent = `${current + 1} / ${total}`;
+        progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+    document.getElementById('nextBtn').addEventListener('click', next);
+    document.getElementById('prevBtn').addEventListener('click', prev);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); } });
+    slides[0].classList.add('active');
+    revealChildren(slides[0]);
+    counter.textContent = `1 / ${total}`;
+    progressBar.style.width = `${(1 / total) * 100}%`;
+</script>
+</body>
+</html>
