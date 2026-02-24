@@ -217,7 +217,7 @@ STEP 4: CLOSE (10 min)
 >
 > What you get: a single control panel for all HyperKidz locations, instant manual add and remove for any site, scheduled deployment and auto-removal when you want it hands-free, popup templates for common scenarios — private party, weather, closure — works on your existing PHP, Bootstrap, CSS, HTML stack, and any team member can use it without being a developer.
 >
-> Pricing: $1,000, one-time. That covers all 8 to 10 websites. I build it, deploy it, train your team, and give you two weeks of support. Split payment — $500 upfront, $500 on delivery. Minimal tool costs after that — maybe $10 to $20 a month for hosting."
+> Pricing: $1,000, one-time. That covers all 8 to 10 websites. Live within 2 weeks — I build it, deploy it, and train your team. Split payment — $500 upfront, $500 on delivery. Minimal tool costs after that — maybe $10 to $20 a month for hosting."
 
 **[Pause.]**
 
