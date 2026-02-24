@@ -350,7 +350,7 @@ Study these completed client folders for tone, structure, and quality:
 
 - **Ernest/** — Content automation for a stock trading app (content engine, SEO, social distribution, engagement automation, ASO). **Single-system, 5-pillar pitch.** Pricing: $7,500 one-time / $2,500/mo managed. Strong proof drop (106K downloads case study).
 - **Joseph/** — Lead generation for construction staffing (LinkedIn sourcing, email outreach, response handling, HubSpot pipeline). **Single-system, 3-pillar pitch.** Pricing: $3,500 one-time / $1,500/mo managed. Includes working N8N workflows. Client was bootstrapping — pricing adjusted to budget.
-- **Shriya/** — Digital marketing agency (Stratgo Media) needing ad monitoring, lead gen, and website automation. **Multi-system pitch (3 independent systems).** Ad Intelligence: $2,500 one-time. Lead Gen: $2,000 one-time / $500/mo managed. Website Automation: starting at $500. No proof drop — used custom-built positioning. Budget-conscious client ($10k/mo revenue).
+- **Shriya/** — Digital marketing agency (Stratgo Media) needing ad monitoring, lead gen, and website automation. **Multi-system pitch (3 independent systems).** Ad Intelligence: $2,500 one-time. Lead Gen: $1,000 one-time / $500/mo managed. Website Automation: starting at $500. No proof drop — used custom-built positioning. Budget-conscious client ($10k/mo revenue).
 
 ---
 

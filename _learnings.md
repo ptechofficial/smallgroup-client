@@ -50,7 +50,7 @@ This file captures insights from every client engagement. Read this BEFORE gener
 
 **Context:** Standard pricing guidelines show Lead Gen at $3,000-5,000 one-time or $1,500-2,000/mo managed. Shriya's budget was $2.5k max one-time and $300/mo.
 
-**What changed:** Priced Lead Gen at $2,000 one-time / $500/mo managed. Ad Intelligence at $2,500 one-time. Website at "starting at $500."
+**What changed:** Priced Lead Gen at $1,000 one-time / $500/mo managed (reduced from initial $2,000 — see 2026-02-24 entry). Ad Intelligence at $2,500 one-time. Website at "starting at $500."
 
 **Why:**
 - Client revenue is $10k/mo. Standard pricing ($5k+) would be 50% of monthly revenue — unreasonable.
@@ -107,6 +107,18 @@ This file captures insights from every client engagement. Read this BEFORE gener
 **Key insight:** When a client has been going back and forth (rescheduling, delaying), the Yes/No frame should be firmer: "We've been talking since [month]. I've put real time into this. I need a clear answer today." Not aggressive — but direct.
 
 **Rule:** For multi-system, the close is "which one?" not "yes or no to the bundle." Different next steps for each system they choose.
+
+---
+
+### 2026-02-24 — Shriya (Stratgo Media) — Pricing
+
+**Context:** Lead Gen system was initially priced at $2,000 one-time. User decided to reduce it to $1,000 one-time before the pitch call.
+
+**What changed:** Lead Gen one-time build price dropped from $2,000 to $1,000. Split payment updated accordingly ($500 upfront / $500 on delivery). Managed option stays at $500/mo.
+
+**Why:** Further adjustment to match client's budget reality and lower the barrier to entry. At $1,000, the ROI math is even more compelling — one closed client at $3,000/mo covers the build 3x over.
+
+**Rule:** Don't be afraid to price aggressively for the first deal with a client. Getting in the door matters more than maximizing the first invoice. The managed option and future systems are where long-term revenue comes from.
 
 ---
 

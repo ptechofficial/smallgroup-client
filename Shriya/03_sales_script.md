@@ -25,7 +25,7 @@
 - [ ] Pitch deck open and ready to screen share (04_pitch_deck.html)
 - [ ] Discovery call transcript reviewed — her key phrases highlighted
 - [ ] Know the 3 systems cold: Ad Intelligence, Lead Gen, Website Automation
-- [ ] Know each price: $2,500 / $2,000 (or $500/mo) / starting $500
+- [ ] Know each price: $2,500 / $1,000 (or $500/mo) / starting $500
 - [ ] Quiet environment, camera on, good audio
 - [ ] Notes open to capture anything new
 
@@ -187,7 +187,7 @@ STEP 4: CLOSE (10 min)
 
 > "Two options here.
 >
-> **Option A: I build it, you run it. $2,000 one-time.** You get the complete outreach infrastructure — email domains set up and warmed, ICP lead list sourced and verified, cold email sequences written and loaded, LinkedIn automation configured, response classification, calendar booking integration. Training plus two weeks of support. After that, you manage it — about 3 to 5 hours a week.
+> **Option A: I build it, you run it. $1,000 one-time.** You get the complete outreach infrastructure — email domains set up and warmed, ICP lead list sourced and verified, cold email sequences written and loaded, LinkedIn automation configured, response classification, calendar booking integration. Training plus two weeks of support. After that, you manage it — about 3 to 5 hours a week.
 >
 > **Option B: I build it and I run it. $500 a month.** Everything in Option A, plus I manage all outreach operations. Continuous lead sourcing, A/B testing, response handling, monthly reporting. Your only job is to show up to the calls that land on your calendar. Six-month commitment.
 >
@@ -229,7 +229,7 @@ STEP 4: CLOSE (10 min)
 
 **[Slide 11: All 3 Systems at a Glance]**
 
-> "Here's all three side by side. Ad Intelligence: monitors your campaigns and competitors, $2,500 one-time. Lead Generation: finds prospects and books calls, $2,000 one-time or $500 a month managed. Website Automation: scheduled popups, starting at $500.
+> "Here's all three side by side. Ad Intelligence: monitors your campaigns and competitors, $2,500 one-time. Lead Generation: finds prospects and books calls, $1,000 one-time or $500 a month managed. Website Automation: scheduled popups, starting at $500.
 >
 > Each system is independent. You own everything I build. Even if we stop working together tomorrow, the systems stay yours."
 
@@ -276,7 +276,7 @@ STEP 4: CLOSE (10 min)
 > "Done. I'll send the agreement today. $1,250 upfront, $1,250 on delivery. Here's what I need from you to start: Meta Business Manager access for all locations, Google Ads access if applicable, your competitor list per location, and Google Workspace admin access for the report delivery. Can you get me that by end of this week?"
 
 **To Lead Gen (One-Time):**
-> "Done. I'll send the agreement today. $1,000 upfront, $1,000 on delivery. I'll need your ICP doc finalized, your Calendly or Cal.com link, and any testimonials or case materials you have ready. When do you want to kick this off?"
+> "Done. I'll send the agreement today. $500 upfront, $500 on delivery. I'll need your ICP doc finalized, your Calendly or Cal.com link, and any testimonials or case materials you have ready. When do you want to kick this off?"
 
 **To Lead Gen (Managed):**
 > "Smart move. I'll send the agreement today. Same setup — I'll need ICP, calendar link, and any materials. Six-month commitment starts when we go live. First month is $500. When are you ready to launch — March?"
