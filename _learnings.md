@@ -50,7 +50,7 @@ This file captures insights from every client engagement. Read this BEFORE gener
 
 **Context:** Standard pricing guidelines show Lead Gen at $3,000-5,000 one-time or $1,500-2,000/mo managed. Shriya's budget was $2.5k max one-time and $300/mo.
 
-**What changed:** Priced Lead Gen at $1,000 one-time / $500/mo managed (reduced from initial $2,000 — see 2026-02-24 entry). Ad Intelligence at $2,500 one-time. Website at "starting at $500."
+**What changed:** Priced Lead Gen at $2,000 one-time / $500/mo managed. Ad Intelligence at $2,500 one-time. Website Popup at $1,000 one-time (covers all 8-10 HyperKidz sites).
 
 **Why:**
 - Client revenue is $10k/mo. Standard pricing ($5k+) would be 50% of monthly revenue — unreasonable.
@@ -110,15 +110,15 @@ This file captures insights from every client engagement. Read this BEFORE gener
 
 ---
 
-### 2026-02-24 — Shriya (Stratgo Media) — Pricing
+### 2026-02-25 — Shriya (Stratgo Media) — Pricing / Scope
 
-**Context:** Lead Gen system was initially priced at $2,000 one-time. User decided to reduce it to $1,000 one-time before the pitch call.
+**Context:** Website Popup system was initially priced at "starting at $500" with a "final quote after code review" caveat. After more clarity on the scope (8-10 HyperKidz websites, manual add/remove + scheduling), user set a firm price of $1,000.
 
-**What changed:** Lead Gen one-time build price dropped from $2,000 to $1,000. Split payment updated accordingly ($500 upfront / $500 on delivery). Managed option stays at $500/mo.
+**What changed:** Website Popup priced at $1,000 one-time (covers all 8-10 sites). No longer "starting at" — firm price. Scope expanded: users can manually add/remove popups instantly OR schedule with auto-deploy and auto-remove. Single control panel for all sites.
 
-**Why:** Further adjustment to match client's budget reality and lower the barrier to entry. At $1,000, the ROI math is even more compelling — one closed client at $3,000/mo covers the build 3x over.
+**Why:** With clearer scope (exact number of sites, exact functionality needed), a firm price is better than "starting at." $1,000 for 8-10 sites is ~$100-125 per site — reasonable for the client and profitable for us.
 
-**Rule:** Don't be afraid to price aggressively for the first deal with a client. Getting in the door matters more than maximizing the first invoice. The managed option and future systems are where long-term revenue comes from.
+**Rule:** Once scope is clear, convert "starting at $X" to a firm price. Ambiguous pricing creates friction at close. Firm numbers close faster.
 
 ---
 

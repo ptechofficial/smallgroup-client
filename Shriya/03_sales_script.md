@@ -25,7 +25,7 @@
 - [ ] Pitch deck open and ready to screen share (04_pitch_deck.html)
 - [ ] Discovery call transcript reviewed — her key phrases highlighted
 - [ ] Know the 3 systems cold: Ad Intelligence, Lead Gen, Website Automation
-- [ ] Know each price: $2,500 / $1,000 (or $500/mo) / starting $500
+- [ ] Know each price: $2,500 / $2,000 (or $500/mo) / $1,000
 - [ ] Quiet environment, camera on, good audio
 - [ ] Notes open to capture anything new
 
@@ -187,7 +187,7 @@ STEP 4: CLOSE (10 min)
 
 > "Two options here.
 >
-> **Option A: I build it, you run it. $1,000 one-time.** You get the complete outreach infrastructure — email domains set up and warmed, ICP lead list sourced and verified, cold email sequences written and loaded, LinkedIn automation configured, response classification, calendar booking integration. Training plus two weeks of support. After that, you manage it — about 3 to 5 hours a week.
+> **Option A: I build it, you run it. $2,000 one-time.** You get the complete outreach infrastructure — email domains set up and warmed, ICP lead list sourced and verified, cold email sequences written and loaded, LinkedIn automation configured, response classification, calendar booking integration. Training plus two weeks of support. After that, you manage it — about 3 to 5 hours a week.
 >
 > **Option B: I build it and I run it. $500 a month.** Everything in Option A, plus I manage all outreach operations. Continuous lead sourcing, A/B testing, response handling, monthly reporting. Your only job is to show up to the calls that land on your calendar. Six-month commitment.
 >
@@ -207,17 +207,17 @@ STEP 4: CLOSE (10 min)
 
 > "System three. This is the one you said you wanted first.
 >
-> You told me on our last call — 'it looks like a small update, but it affects the cost for the customer in a huge way.' A private party popup stays up one extra day, people see the location is closed, they don't show up. That's a full day of walk-in revenue gone. Across 10 locations, this risk is happening every week.
+> You told me on our last call — 'it looks like a small update, but it affects the cost for the customer in a huge way.' A private party popup stays up one extra day, people see the location is closed, they don't show up. That's a full day of walk-in revenue gone. Across 8 to 10 locations, this risk is happening every week.
 >
-> This system makes it impossible to forget. Your team schedules a popup through a simple form — location, message, start time, end time. The system deploys it automatically and removes it automatically. Works with your existing PHP, Bootstrap, CSS, HTML stack. No website rebuild."
+> This system gives your team full control. They can manually add or remove a popup from any HyperKidz website instantly — no code, no developer. And if they know the schedule in advance, they set a start and end time and the system handles it automatically. Works with your existing PHP, Bootstrap, CSS, HTML stack. No website rebuild."
 
 **[Slide 10: How It Works + Price]**
 
-> "The flow is simple. Team member fills out a form. System validates and schedules the deployment. Popup goes live at the start time. Timer runs. Popup auto-removes at the end time. Zero human intervention after the form is submitted.
+> "The flow is simple. Your team gets a dashboard that covers all 8 to 10 HyperKidz websites. From there, they can do three things: manually add a popup to any site right now, manually remove a popup from any site right now, or schedule a popup with a start and end time and the system handles it automatically. No code, no developer, no FTP. Just pick the site, pick the message, and go.
 >
-> What you get: form-based scheduling for all locations, automatic deployment and removal, popup templates for common scenarios — private party, weather, closure — works on your existing stack, and any team member can use it without being a developer.
+> What you get: a single control panel for all HyperKidz locations, instant manual add and remove for any site, scheduled deployment and auto-removal when you want it hands-free, popup templates for common scenarios — private party, weather, closure — works on your existing PHP, Bootstrap, CSS, HTML stack, and any team member can use it without being a developer.
 >
-> Pricing: starting at $500, one-time. I need to review the website codebase first to give you a final number — the existing PHP and Bootstrap setup determines the integration complexity. But the floor is $500. Minimal tool costs after that — maybe $10 to $20 a month for hosting."
+> Pricing: $1,000, one-time. That covers all 8 to 10 websites. I build it, deploy it, train your team, and give you two weeks of support. Split payment — $500 upfront, $500 on delivery. Minimal tool costs after that — maybe $10 to $20 a month for hosting."
 
 **[Pause.]**
 
@@ -229,7 +229,7 @@ STEP 4: CLOSE (10 min)
 
 **[Slide 11: All 3 Systems at a Glance]**
 
-> "Here's all three side by side. Ad Intelligence: monitors your campaigns and competitors, $2,500 one-time. Lead Generation: finds prospects and books calls, $1,000 one-time or $500 a month managed. Website Automation: scheduled popups, starting at $500.
+> "Here's all three side by side. Ad Intelligence: monitors your campaigns and competitors, $2,500 one-time. Lead Generation: finds prospects and books calls, $2,000 one-time or $500 a month managed. Website Automation: manage and schedule popups across all HyperKidz sites, $1,000.
 >
 > Each system is independent. You own everything I build. Even if we stop working together tomorrow, the systems stay yours."
 
@@ -276,16 +276,16 @@ STEP 4: CLOSE (10 min)
 > "Done. I'll send the agreement today. $1,250 upfront, $1,250 on delivery. Here's what I need from you to start: Meta Business Manager access for all locations, Google Ads access if applicable, your competitor list per location, and Google Workspace admin access for the report delivery. Can you get me that by end of this week?"
 
 **To Lead Gen (One-Time):**
-> "Done. I'll send the agreement today. $500 upfront, $500 on delivery. I'll need your ICP doc finalized, your Calendly or Cal.com link, and any testimonials or case materials you have ready. When do you want to kick this off?"
+> "Done. I'll send the agreement today. $1,000 upfront, $1,000 on delivery. I'll need your ICP doc finalized, your Calendly or Cal.com link, and any testimonials or case materials you have ready. When do you want to kick this off?"
 
 **To Lead Gen (Managed):**
 > "Smart move. I'll send the agreement today. Same setup — I'll need ICP, calendar link, and any materials. Six-month commitment starts when we go live. First month is $500. When are you ready to launch — March?"
 
 **To Website Automation:**
-> "Got it. First step — I need to review the website codebase so I can give you a final quote. Can you send me the credentials or give me access this week? Once I've reviewed it, I'll come back with the exact number and timeline."
+> "Done. I'll send the agreement today. $500 upfront, $500 on delivery. I'll need website credentials and hosting access for all HyperKidz locations so I can build the control panel across all 8 to 10 sites. Can you get me that this week?"
 
 **To Multiple Systems:**
-> "Let's lock them all in. I'll send one agreement covering everything. For the website system, I'll review the code first and add the final number before you sign. The other two I can start immediately. Sound good?"
+> "Let's lock them all in. I'll send one agreement covering everything. I can start all of them immediately. Sound good?"
 
 ### 4F: If She Needs to Talk to Co-Founder
 
@@ -313,7 +313,7 @@ STEP 4: CLOSE (10 min)
 
 ### "I want to start with just the popup — can we do that first?"
 
-> "Absolutely. That's why I built them as independent systems. We can start with the popup. I just need to review the website code first to give you the final number. Can you send me access this week?"
+> "Absolutely. That's why I built them as independent systems. $1,000 covers all 8 to 10 sites. $500 upfront, $500 on delivery. I just need website credentials and hosting access. Can you send that this week?"
 
 ### "GoMarble does something similar for the ad part"
 
