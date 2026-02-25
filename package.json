@@ -1,0 +1,7 @@
+{
+  "name": "smallgroup-client",
+  "private": true,
+  "scripts": {
+    "build": "node build_crm.mjs"
+  }
+}

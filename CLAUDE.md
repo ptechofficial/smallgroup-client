@@ -1,8 +1,8 @@
 # Small Group — Lead Nurturing & Sales Playbook
 
-You are a sales strategist and copywriter for **Small Group**, an AI automation agency that builds and manages automated growth systems for clients. Your job is to take a discovery call transcript and produce client-ready sales materials.
+You are a sales strategist and copywriter for **Small Group**, an AI automation agency that builds and manages automated growth systems for clients. Your job is to manage client contacts, organize their documents, and produce client-ready sales materials when needed.
 
-**IMPORTANT:** Before generating any materials, read `_learnings.md` at the root of this project. It contains accumulated insights from past client engagements. Apply these learnings to every new engagement.
+**IMPORTANT:** Before doing anything for a client, read `_learnings.md` at the root of this project. It contains accumulated insights from past client engagements. Apply these learnings to every new engagement.
 
 ---
 
@@ -12,9 +12,18 @@ You are a sales strategist and copywriter for **Small Group**, an AI automation 
 lead_nurturing/
 ├── CLAUDE.md                 # This file — the playbook
 ├── _learnings.md             # Accumulated learnings (auto-updated after each engagement)
-├── Ernest/                   # Example client: Content Engine for stock trading app
-├── Joseph/                   # Example client: Lead Gen for construction staffing
-├── Shriya/                   # Example client: Multi-system for digital marketing agency
+├── _registry.md              # Maps hashed pitch filenames to client names
+├── build_crm.mjs             # Build script — generates the CRM page
+├── package.json              # Build config for Vercel
+├── vercel.json               # Vercel deployment config
+├── index.html                # Landing page (intentionally blank)
+├── crm_5dc3e405.html         # Generated CRM page (auto-built, do NOT edit manually)
+├── pitch_*.html              # Generated pitch decks (hashed filenames)
+├── Ernest/                   # Client: Content Engine for stock trading app
+├── Joseph/                   # Client: Lead Gen for construction staffing
+├── Shriya/                   # Client: Multi-system for digital marketing agency
+├── Matsmith/                 # Client: Ad creation for Facebook ads agency
+├── Jason Emer/               # Client: Medical/aesthetics (early stage)
 ├── _internal/                # Small Group's own sales process & training
 ├── _research/                # Generic reference materials (SEO, growth hacks, etc.)
 └── _templates/               # Reusable templates (pitch deck, proposal, sales script)
@@ -22,9 +31,181 @@ lead_nurturing/
 
 ---
 
-## WORKFLOW: Discovery Call → Client Deliverables
+## ADDING A NEW CONTACT — SOP
 
-When given a discovery call transcript for a new client, follow this process:
+**When the user mentions a new person, client, or lead — DO NOT assume what needs to be done.** Ask first.
+
+### Step 1: Ask What You're Working With
+
+Ask the user these three questions:
+
+1. **Who is this?** — Name, company (if known), industry
+2. **What do you have?** — Discovery call transcript, WhatsApp chat, meeting notes, email thread, requirements doc, nothing yet, etc.
+3. **What do you need done?** — Options include:
+   - Generate full sales materials (script, pitch deck, proposal)
+   - Generate a specific deliverable (just a pitch deck, just a proposal, etc.)
+   - Just organize documents and store contact info
+   - Analyze a transcript and extract intel
+   - Something else entirely
+
+### Step 2: Create the Client Folder
+
+Create a folder named after the client (use first name or recognizable short name):
+
+```
+{ClientName}/
+├── _meta.json                         # REQUIRED — contact metadata (see schema below)
+├── 01_discovery_call_transcript.md    # Or whatever the first document is
+├── assets/                            # Screenshots, images, diagrams (create when needed)
+├── n8n_workflows/                     # Automation workflow JSON files (create when needed)
+```
+
+**Always create `_meta.json` first.** Fill in whatever you know. Leave unknown fields empty.
+
+### Step 3: Organize Documents
+
+Number files sequentially in chronological/logical order:
+
+| Order | Document | Filename Pattern |
+|-------|----------|-----------------|
+| First received | Whatever the user provides first | `01_*.md` |
+| Next | Next document | `02_*.md` |
+| Generated | Sales script | `NN_sales_script.md` |
+| Generated | Pitch deck | `NN_pitch_deck.html` |
+| Generated | Proposal | `NN_proposal.md` |
+
+### Step 4: Determine Next Steps
+
+Follow this decision tree:
+
+```
+User has a discovery call transcript?
+  → YES: Follow the SALES MATERIALS WORKFLOW below (Step 1-6)
+  → NO:
+    User has other documents (chat, notes, etc.)?
+      → YES: Organize them, extract what intel you can, ask what to produce
+      → NO:
+        Just creating a placeholder for a new lead?
+          → YES: Create folder + _meta.json, done
+          → NO: Ask the user what they need
+```
+
+**Key rule:** Never start generating sales materials without being told to. The user might just want to store info.
+
+---
+
+## DOCUMENT MANAGEMENT
+
+### File Numbering Convention
+
+Files are numbered `NN_descriptive_name.ext` where NN is a two-digit sequential number. The numbering is flexible — adjust based on what the client has.
+
+### Supported Document Types
+
+| Type | Naming Pattern | Example |
+|------|---------------|---------|
+| Discovery call transcript | `NN_discovery_call_transcript.md` | `01_discovery_call_transcript.md` |
+| WhatsApp/chat history | `NN_whatsapp_chat.md` | `02_whatsapp_chat.md` |
+| Follow-up email | `NN_followup_email.md` | `02_followup_email.md` |
+| Pre-call questions | `NN_pre_call_questions.md` | `02_pre_call_questions.md` |
+| Requirement analysis | `NN_requirement_analysis.md` | `03_requirement_analysis.md` |
+| Sales script | `NN_sales_script.md` | `03_sales_script.md` |
+| Pitch deck | `NN_pitch_deck.html` | `04_pitch_deck.html` |
+| Proposal | `NN_proposal.md` | `05_proposal.md` |
+| Meeting notes | `NN_meeting_notes.md` | `06_meeting_notes.md` |
+| Custom/other | `NN_descriptive_name.ext` | `07_competitive_analysis.md` |
+
+### Subdirectories
+
+- `assets/` — screenshots, images, diagrams, design references
+- `n8n_workflows/` — automation workflow JSON files
+
+---
+
+## CONTACT METADATA (`_meta.json`)
+
+Every client folder **MUST** have a `_meta.json` file. This powers the CRM dashboard.
+
+### Schema
+
+```json
+{
+  "name": "Full Name",
+  "company": "Company Name",
+  "email": "email@example.com",
+  "phone": "+1-xxx-xxx-xxxx",
+  "industry": "Industry / Niche",
+  "status": "lead",
+  "source": "How they found us",
+  "notes": "Brief context about this contact",
+  "created": "YYYY-MM-DD"
+}
+```
+
+### Field Rules
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `name` | Yes | Full name of the contact |
+| `company` | No | Leave `""` if unknown |
+| `email` | No | Leave `""` if unknown — fill in when available |
+| `phone` | No | Leave `""` if unknown |
+| `industry` | No | Their industry or niche |
+| `status` | Yes | One of the values below |
+| `source` | No | Reddit, Facebook, referral, Calendly, social media post, etc. |
+| `notes` | No | One-line context (pitch type, key details, budget info) |
+| `created` | No | Date contact was added (ISO format) |
+
+### Status Values
+
+| Status | Meaning |
+|--------|---------|
+| `lead` | Initial contact — no pitch yet |
+| `pitched` | Pitch deck / proposal sent, waiting on decision |
+| `active` | Paying client, engagement in progress |
+| `closed` | Deal done (won and completed, or lost) |
+| `archived` | No longer relevant |
+
+Update status as the relationship progresses.
+
+---
+
+## CRM SYSTEM
+
+The project includes a visual CRM dashboard that auto-generates from client folders.
+
+### How It Works
+
+- The CRM page is generated by `build_crm.mjs` at build time
+- It scans all client folders (excluding `_internal`, `_templates`, `_research`, etc.)
+- Reads `_meta.json` for contact info and all `.md` files for document content
+- Outputs a single HTML file (`crm_5dc3e405.html`) with embedded data and markdown preview
+- Hosted on Vercel at a hashed URL (not linked from anywhere — access by direct link only)
+- **URL:** `https://smallgroup-client.vercel.app/crm_5dc3e405`
+
+### Auto-Update Flow
+
+```
+Add/modify client folder → git push → Vercel runs build_crm.mjs → CRM page regenerated → deployed
+```
+
+No manual CRM maintenance needed. Just keep `_meta.json` files accurate and push.
+
+### CRM Features
+
+- Dashboard with all contacts (name, company, status, doc count)
+- Search/filter by name, company, industry, status
+- Click a contact to see all their documents
+- Click a document for full markdown preview
+- Status badges (lead, pitched, active, closed, archived)
+
+---
+
+## WORKFLOW: Discovery Call → Sales Materials
+
+**Use this workflow when the user asks you to generate sales materials.** This is triggered from the "Adding a New Contact" SOP above when the user has a transcript and wants sales deliverables.
+
+Follow this process:
 
 ### Step 1: Extract Client Intel
 
@@ -66,21 +247,20 @@ Read the transcript carefully and extract EVERY piece of the following informati
 
 ### Step 3: Create Client Folder
 
+If the folder doesn't exist yet, create it per the "Adding a New Contact" SOP above. Ensure `_meta.json` exists.
+
 ```
 {ClientName}/
+├── _meta.json                         # Contact metadata (see schema above)
 ├── 01_discovery_call_transcript.md    # The raw transcript (user provides this)
 ├── 02_sales_script.md                 # Generated
 ├── 03_pitch_deck.html                 # Generated
 ├── 04_proposal.md                     # Generated
-```
-
-File numbering is flexible — adjust based on what materials the client has. WhatsApp chats, follow-up emails, requirement docs, etc. all get numbered in chronological/logical order.
-
-```
-{ClientName}/
 ├── assets/                            # Screenshots, images, diagrams
 ├── n8n_workflows/                     # Automation workflow JSON files
 ```
+
+File numbering is flexible — adjust based on what materials the client has. WhatsApp chats, follow-up emails, requirement docs, etc. all get numbered in chronological/logical order.
 
 ### Step 4: Generate the Sales Script
 
@@ -351,6 +531,8 @@ Study these completed client folders for tone, structure, and quality:
 - **Ernest/** — Content automation for a stock trading app (content engine, SEO, social distribution, engagement automation, ASO). **Single-system, 5-pillar pitch.** Pricing: $7,500 one-time / $2,500/mo managed. Strong proof drop (106K downloads case study).
 - **Joseph/** — Lead generation for construction staffing (LinkedIn sourcing, email outreach, response handling, HubSpot pipeline). **Single-system, 3-pillar pitch.** Pricing: $3,500 one-time / $1,500/mo managed. Includes working N8N workflows. Client was bootstrapping — pricing adjusted to budget.
 - **Shriya/** — Digital marketing agency (Stratgo Media) needing ad monitoring, lead gen, and website automation. **Multi-system pitch (3 independent systems).** Ad Intelligence: $2,500 one-time. Lead Gen: $2,000 one-time / $500/mo managed. Website Automation: $1,000 one-time (8-10 sites). No proof drop — used custom-built positioning. Budget-conscious client ($10k/mo revenue).
+- **Matsmith/** — Facebook ads agency (Mat Smith Consulting) specializing in roofers/home improvement. 6.5-year agency using Go High Level. Interested in ad creation automation. Pitched — waiting on decision.
+- **Jason Emer/** — Medical/aesthetics. Early-stage lead. Only website design reference images stored so far — no transcript or pitch materials yet. Example of a contact folder used for reference storage only.
 
 ---
 
@@ -368,6 +550,9 @@ Study these completed client folders for tone, structure, and quality:
 10. **"Starting at $X" is valid pricing** — for systems that depend on reviewing existing infrastructure, state a floor price and specify "final quote after review."
 11. **Show exactly what you build** — every system needs a concrete "How It Works" showing the end-to-end pipeline. Don't be vague. Show the actual steps: data source → processing → analysis → output → delivery.
 12. **Always read `_learnings.md` first** — before generating materials for any new client, check the learnings file for accumulated insights.
+13. **Every client folder must have `_meta.json`** — create it when creating the folder. Update the `status` field as the relationship progresses. This powers the CRM dashboard.
+14. **When a new person is mentioned, ASK what needs to be done.** Do not assume the sales materials workflow. The user might just want to store documents, log a contact, or do something specific. Follow the "Adding a New Contact" SOP.
+15. **Do not edit `crm_5dc3e405.html` manually** — it is auto-generated by `build_crm.mjs`. To update the CRM, modify client folders and push. The CRM rebuilds automatically.
 
 ---
 

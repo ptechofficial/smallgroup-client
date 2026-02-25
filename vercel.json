@@ -1,11 +1,21 @@
 {
   "cleanUrls": true,
+  "buildCommand": "node build_crm.mjs",
+  "outputDirectory": ".",
   "headers": [
     {
       "source": "/pitch_(.*).html",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
         { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/crm_(.*).html",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" },
+        { "key": "X-Frame-Options", "value": "DENY" }
       ]
     }
   ]
