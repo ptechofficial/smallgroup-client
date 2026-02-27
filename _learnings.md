@@ -122,6 +122,18 @@ This file captures insights from every client engagement. Read this BEFORE gener
 
 ---
 
+### 2026-02-27 — Joseph Cyriac — Pricing / Negotiation
+
+**Context:** Original pitch was $1,500/mo managed (6-month commitment) with aggressive volume: 500-1,000 leads/week sourced, 100 LinkedIn connections/week, 350-450 cold emails/day. Joseph came back 2 weeks later at $900/mo, asked to dial down volume, and wanted no minimum contract.
+
+**What changed:** Accepted $900/mo with reduced scope — 100 LinkedIn connections/week, 50 DMs/week, 200 cold emails/week (~1,400 monthly touchpoints vs. original 3,000+). No minimum contract, month-to-month with advance payment. System live in 1 week instead of 4.
+
+**Why:** Joseph is bootstrapping, funding tools out of pocket, and price-sensitive. Getting him in at $900/mo with room to scale up is better than losing the deal entirely. Lower volume also means lower tool costs for him and lower operational load for us.
+
+**Rule:** When a client negotiates down, reduce scope proportionally rather than discounting the same work. "Start simple, scale later" is a valid sales motion — especially for bootstrapping founders. Month-to-month with advance payment reduces risk for both sides.
+
+---
+
 ## TEMPLATE FOR NEW ENTRIES
 
 Copy this when adding a new learning:
