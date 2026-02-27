@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Group — Filippo / SYNACT</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAFA; --surface: #FFFFFF; --text-primary: #111111;
+            --text-secondary: #555555; --text-muted: #999999;
+            --accent: #1A1A2E; --accent-light: #16213E; --highlight: #0F3460;
+            --blue: #2563EB; --blue-light: #EFF6FF;
+            --green: #059669; --green-light: #ECFDF5;
+            --orange: #D97706; --orange-light: #FFFBEB;
+            --purple: #7C3AED; --purple-light: #F5F3FF;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .deck { width: 100%; height: 100%; position: relative; }
+        .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; visibility: hidden; transform: translateX(40px); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); background: var(--bg); }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+        .slide.prev { transform: translateX(-40px); }
+        .slide-inner { max-width: 1100px; width: 100%; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; user-select: none; }
+        .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; color: var(--accent); }
+        .nav-controls { display: flex; align-items: center; gap: 16px; }
+        .nav-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-primary); }
+        .nav-btn:hover { background: var(--bg); border-color: #ccc; }
+        .nav-btn svg { width: 16px; height: 16px; }
+        .nav-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); z-index: 100; }
+        .serif { font-family: 'Playfair Display', Georgia, serif; }
+        h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+        h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
+        h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+        p { font-size: 18px; line-height: 1.6; color: var(--text-secondary); }
+        .label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+        .subtitle { font-size: 22px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+        .card-grid { display: grid; gap: 20px; }
+        .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .card-grid.cols-5 { grid-template-columns: 1fr 1fr 1fr 1fr 1fr; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
+        .icon-circle { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+        .icon-circle.blue { background: var(--blue-light); }
+        .icon-circle.green { background: var(--green-light); }
+        .icon-circle.orange { background: var(--orange-light); }
+        .icon-circle.purple { background: var(--purple-light); }
+        .spacer-16 { height: 16px; } .spacer-24 { height: 24px; } .spacer-32 { height: 32px; } .spacer-40 { height: 40px; } .spacer-48 { height: 48px; }
+        .text-center { text-align: center; }
+        .check-list { list-style: none; }
+        .check-list li { padding: 10px 0; font-size: 17px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 12px; line-height: 1.4; }
+        .check-list li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+        .timeline { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0; position: relative; }
+        .timeline::before { content: ''; position: absolute; top: 24px; left: 24px; right: 24px; height: 2px; background: var(--border); }
+        .timeline-item { position: relative; padding: 0 16px; }
+        .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-bottom: 20px; position: relative; z-index: 2; margin-left: 8px; }
+        .timeline-week { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        .timeline-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .timeline-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+        .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
+        .vs-block { padding: 32px; border-radius: var(--radius); }
+        .vs-block.before { background: #FEF2F2; border: 1px solid #FECACA; }
+        .vs-block.after { background: var(--green-light); border: 1px solid #A7F3D0; }
+        .vs-divider { font-size: 24px; font-weight: 700; color: var(--text-muted); }
+        .flow { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+        .flow-step { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 22px; font-size: 14px; font-weight: 500; box-shadow: var(--shadow); }
+        .flow-arrow { color: var(--text-muted); font-size: 18px; }
+        .pricing-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        .pricing-card { background: var(--surface); border: 2px solid var(--border); border-radius: 16px; padding: 40px 32px; position: relative; }
+        .pricing-card.recommended { border-color: var(--accent); }
+        .pricing-card.recommended .pricing-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 4px 16px; border-radius: 100px; }
+        .pricing-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+        .pricing-desc { font-size: 14px; color: var(--text-muted); margin-bottom: 24px; }
+        .pricing-amount { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; }
+        .pricing-period { font-size: 16px; font-weight: 400; color: var(--text-muted); }
+        .pricing-features { list-style: none; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border); }
+        .pricing-features li { padding: 8px 0; font-size: 14px; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+        .pricing-features li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 14px; }
+        .pillar-tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .pillar-tag .num { width: 28px; height: 28px; border-radius: 8px; background: var(--accent); color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+        .pillar-tag .text { font-size: 13px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+        .animate-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+        .animate-in.visible { opacity: 1; transform: translateY(0); }
+        @media (max-width: 900px) {
+            .slide { padding: 40px 32px; } h1 { font-size: 40px; } h2 { font-size: 32px; }
+            .card-grid.cols-3, .card-grid.cols-4, .card-grid.cols-5 { grid-template-columns: 1fr 1fr; }
+            .timeline { grid-template-columns: 1fr 1fr; gap: 24px; } .timeline::before { display: none; }
+            .pricing-grid { grid-template-columns: 1fr; } .vs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+<div class="deck" id="deck">
+
+    <!-- SLIDE 1 - TITLE -->
+    <div class="slide active" data-slide="1">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 20px;">Content Automation Farm<br><span class="serif" style="font-weight: 600;">for AI Education</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 640px; margin: 0 auto;">An end-to-end system that discovers viral content, generates Italian-language AI avatar videos, and posts them automatically &mdash; 60 videos per month.</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in"><p style="font-size: 15px; color: var(--text-muted);">Prepared for Filippo / SYNACT&ensp;&middot;&ensp;Phase 1&ensp;&middot;&ensp;February 2026</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 2 - THE GAP -->
+    <div class="slide" data-slide="2">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The Challenge</p><h2 style="margin-bottom: 48px;">Manual Content vs.<br><span class="serif">Automated Pipeline</span></h2></div>
+            <div class="vs-grid animate-in">
+                <div class="vs-block before">
+                    <p class="label" style="color: #DC2626; margin-bottom: 16px;">Today (Manual)</p>
+                    <h3 style="font-size: 42px; font-weight: 800; color: #991B1B; margin-bottom: 16px;">0</h3>
+                    <p style="font-size: 16px; color: #991B1B;">automated videos per month</p>
+                    <div style="height: 16px;"></div>
+                    <ul style="list-style: none; font-size: 14px; color: #B91C1C; line-height: 2;">
+                        <li>Content created manually, one at a time</li>
+                        <li>No systematic approach to trending topics</li>
+                        <li>Posting is inconsistent and time-consuming</li>
+                        <li>No data on what angles actually convert</li>
+                    </ul>
+                </div>
+                <div class="vs-divider">&rarr;</div>
+                <div class="vs-block after">
+                    <p class="label" style="color: var(--green); margin-bottom: 16px;">With Small Group</p>
+                    <h3 style="font-size: 42px; font-weight: 800; color: #065F46; margin-bottom: 16px;">60</h3>
+                    <p style="font-size: 16px; color: #065F46;">videos per month, fully automated</p>
+                    <div style="height: 16px;"></div>
+                    <ul style="list-style: none; font-size: 14px; color: #047857; line-height: 2;">
+                        <li>Every video inspired by proven viral content</li>
+                        <li>AI avatar + Italian voiceover + B-roll</li>
+                        <li>Daily posting on Instagram + TikTok</li>
+                        <li>Analytics feedback loop optimizes every cycle</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 3 - FIVE PILLARS OVERVIEW -->
+    <div class="slide" data-slide="3">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The System</p><h2 style="margin-bottom: 48px;">Five Modules, One Pipeline</h2></div>
+            <div class="card-grid cols-5">
+                <div class="card animate-in" style="border-top: 3px solid var(--blue); padding: 24px;"><div class="icon-circle blue">&#x1F50D;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Discovery &amp; Scraping</h3><p style="font-size: 13px;">Find what's already going viral in the niche.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--accent); padding: 24px;"><div class="icon-circle" style="background: #F3F4F6;">&#x270D;&#xFE0F;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Script Generation</h3><p style="font-size: 13px;">Rewrite viral content for the Agent Kit funnel. In Italian.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--orange); padding: 24px;"><div class="icon-circle orange">&#x1F3AC;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Video Production</h3><p style="font-size: 13px;">AI avatar + voice + B-roll. Publish-ready MP4s.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--green); padding: 24px;"><div class="icon-circle green">&#x1F4F1;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Smart Distribution</h3><p style="font-size: 13px;">Staggered posting across Instagram + TikTok.</p></div>
+                <div class="card animate-in" style="border-top: 3px solid var(--purple); padding: 24px;"><div class="icon-circle purple">&#x1F4CA;</div><h3 style="font-size: 15px; margin-bottom: 6px;">Analytics &amp; Feedback</h3><p style="font-size: 13px;">Track performance. Optimize the next batch.</p></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 4 - PILLAR 1: DISCOVERY & SCRAPING -->
+    <div class="slide" data-slide="4">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">1</div><div class="text">Pillar One</div></div>
+                <h2 style="margin-bottom: 12px;">Content Discovery &amp; Scraping</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Find what's already working in the niche &mdash; viral hooks, proven angles, high-engagement content &mdash; and use it as the blueprint.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Automated Viral Detection</h3>
+                    <ul class="check-list">
+                        <li>Apify scrapes TikTok + Instagram daily</li>
+                        <li>Targeted keywords: "make money online 2026", "no-code business", "sell AI to businesses", "SMMA automation"</li>
+                        <li>Filters for above-average engagement ratio</li>
+                        <li>Extracts transcriptions and hook structures</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">What Gets Extracted</h3>
+                    <ul class="check-list">
+                        <li>Full video transcription (audio to text)</li>
+                        <li>Hook breakdown (first 3-5 seconds)</li>
+                        <li>Engagement metrics (views, likes, comments ratio)</li>
+                        <li>Content angle classification (money, freedom, simplicity, etc.)</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><p style="font-size: 15px; color: var(--text-secondary);"><strong>Every video starts from a proven blueprint.</strong>&ensp;No guessing what content will resonate &mdash; we reverse-engineer what's already working.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5 - PILLAR 2: SCRIPT GENERATION -->
+    <div class="slide" data-slide="5">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">2</div><div class="text">Pillar Two</div></div>
+                <h2 style="margin-bottom: 12px;">AI Script Generation</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Viral references go in. Italian-language scripts for the Agent Kit funnel come out &mdash; with the right hooks, angles, and CTAs.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Smart Rewriting</h3>
+                    <ul class="check-list">
+                        <li>LLM (Claude/GPT-4o) rewrites viral transcripts</li>
+                        <li>Adapted to the Agent Kit 4-step framework</li>
+                        <li>4 marketing angles: attack old models, promise freedom, hybrid business model, no-code simplicity</li>
+                        <li>All output strictly in Italian</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Script Structure</h3>
+                    <ul class="check-list">
+                        <li>Hook (first 3 seconds &mdash; attention grabber)</li>
+                        <li>Value body (4-step method explanation)</li>
+                        <li>CTA driving to Free Training</li>
+                        <li>Caption copy + hashtags auto-generated</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in">
+                <div class="flow">
+                    <div class="flow-step" style="background: var(--blue-light); border-color: var(--blue);">Viral transcripts</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">LLM rewrite (Italian)</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">Script in Airtable</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--green-light); border-color: var(--green);">Client approves</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 6 - PILLAR 3: VIDEO PRODUCTION -->
+    <div class="slide" data-slide="6">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">3</div><div class="text">Pillar Three</div></div>
+                <h2 style="margin-bottom: 12px;">Dynamic Video Production</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Approved scripts become finished videos automatically &mdash; AI avatar, Italian voiceover, subtitles, B-roll, ready to post.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Production Pipeline</h3>
+                    <ul class="check-list">
+                        <li>ElevenLabs TTS &mdash; energetic Italian voice</li>
+                        <li>AI avatar synced to audio (lip-sync)</li>
+                        <li>Auto-generated subtitles overlaid</li>
+                        <li>Thematic B-roll from Pexels or client archive</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Quality Control</h3>
+                    <ul class="check-list">
+                        <li>Finished MP4 saved to Google Drive</li>
+                        <li>Link posted to Airtable (no database bloat)</li>
+                        <li>"Approve Video" button &mdash; client reviews before posting</li>
+                        <li>Two human gates: script approval + video approval</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in">
+                <div class="flow">
+                    <div class="flow-step">Approved script</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">TTS (Italian)</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">AI Avatar</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">+ B-Roll + Subs</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--green-light); border-color: var(--green);">MP4 ready</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 7 - PILLAR 4: DISTRIBUTION -->
+    <div class="slide" data-slide="7">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">4</div><div class="text">Pillar Four</div></div>
+                <h2 style="margin-bottom: 12px;">Smart Distribution</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">Approved videos are scheduled and posted automatically &mdash; staggered timing, optimized captions, across both platforms.</p>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Automated Posting</h3>
+                    <ul class="check-list">
+                        <li>Blotato/Buffer API handles scheduling</li>
+                        <li>Instagram Reels + TikTok &mdash; daily posts</li>
+                        <li>Staggered timing simulates human behavior</li>
+                        <li>Optimized captions + hashtags per platform</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">Funnel Integration</h3>
+                    <ul class="check-list">
+                        <li>CTA: "link in bio" or keyword comment</li>
+                        <li>ManyChat DM automation sends Free Training link</li>
+                        <li>Every video drives traffic to the Agent Kit funnel</li>
+                        <li>Consistent daily presence across both platforms</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><p style="font-size: 15px; color: var(--text-secondary);"><strong>1 post per day, every day, on each platform.</strong>&ensp;Consistent presence without manual effort.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 8 - PILLAR 5: ANALYTICS -->
+    <div class="slide" data-slide="8">
+        <div class="slide-inner">
+            <div class="animate-in">
+                <div class="pillar-tag"><div class="num">5</div><div class="text">Pillar Five</div></div>
+                <h2 style="margin-bottom: 12px;">Performance Analytics<br>&amp; Feedback Loop</h2>
+                <p style="max-width: 700px; margin-bottom: 40px;">The system doesn't just produce content &mdash; it learns. Every cycle gets smarter based on what actually converts.</p>
+            </div>
+            <div class="animate-in">
+                <div class="flow" style="margin-bottom: 40px;">
+                    <div class="flow-step" style="background: var(--blue-light); border-color: var(--blue);">Videos posted</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">Track at 48h + 7 days</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">Identify winning angles</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--green-light); border-color: var(--green);">Feed back to LLM</div>
+                </div>
+            </div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">What We Track</h3>
+                    <ul class="check-list">
+                        <li>Views, likes, comments, shares per video</li>
+                        <li>Link clicks and funnel entries</li>
+                        <li>Which marketing angle performed best</li>
+                        <li>Hook effectiveness (retention in first 3 sec)</li>
+                    </ul>
+                </div>
+                <div class="card animate-in">
+                    <h3 style="font-size: 16px; margin-bottom: 16px;">How It Optimizes</h3>
+                    <ul class="check-list">
+                        <li>Best-performing angles weighted in next batch</li>
+                        <li>Underperforming styles phased out</li>
+                        <li>LLM prompts recalibrated with real data</li>
+                        <li>Month 2 outperforms Month 1. Always.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 9 - END-TO-END PIPELINE -->
+    <div class="slide" data-slide="9">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">How It Works</p><h2 style="margin-bottom: 48px;">The Full Pipeline</h2></div>
+            <div class="animate-in">
+                <div class="flow" style="margin-bottom: 40px;">
+                    <div class="flow-step" style="background: var(--blue-light); border-color: var(--blue);">Apify scrapes<br>viral content</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">LLM generates<br>Italian scripts</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--orange-light); border-color: var(--orange);">Client approves<br>in Airtable</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step">Avatar + TTS<br>+ B-roll</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--orange-light); border-color: var(--orange);">Client approves<br>video</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-step" style="background: var(--green-light); border-color: var(--green);">Auto-post<br>IG + TikTok</div>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="card-grid cols-4 animate-in">
+                <div class="card stat"><div class="stat-number">60</div><div class="stat-label">Videos / month</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--blue);">2</div><div class="stat-label">Platforms (IG + TikTok)</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--green);">2</div><div class="stat-label">Human approval gates</div></div>
+                <div class="card stat"><div class="stat-number" style="color: var(--purple);">24/7</div><div class="stat-label">Analytics tracking</div></div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in"><div class="card" style="background: var(--bg);"><p style="font-size: 15px; color: var(--text-secondary);">System outputs &mdash; not revenue guarantees. The automation delivers videos, posting, and optimization. Funnel conversion depends on the client's offer and audience.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 10 - TIMELINE -->
+    <div class="slide" data-slide="10">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">How Fast We Move</p><h2 style="margin-bottom: 48px;">Live in 4 Weeks</h2></div>
+            <div class="timeline animate-in">
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 1-2</div><div class="timeline-title">Infrastructure Setup</div><div class="timeline-desc">Apify scrapers configured. LLM prompts engineered for Italian + Agent Kit. Airtable workspace built. Google Drive + scheduling connected.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 3</div><div class="timeline-title">Test &amp; Iterate</div><div class="timeline-desc">First batch of 10-15 test videos. Client reviews quality. Iterate on avatar style, voice, B-roll approach, script tone.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Week 4</div><div class="timeline-title">Go Live</div><div class="timeline-desc">System goes live. First approved videos posted. Performance tracking active. Daily posting begins.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Month 2+</div><div class="timeline-title">Full Production</div><div class="timeline-desc">60 videos/month at full volume. Weekly optimization based on analytics. Continuous prompt refinement.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 11 - WHAT'S INCLUDED -->
+    <div class="slide" data-slide="11">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Everything You Get</p><h2 style="margin-bottom: 40px;">Full-Stack Content Farm</h2></div>
+            <div class="card-grid cols-2">
+                <div class="animate-in"><ul class="check-list">
+                    <li>Apify scraping pipeline (viral content discovery)</li>
+                    <li>Custom LLM prompt engineering (Italian, Agent Kit)</li>
+                    <li>AI avatar + TTS video production pipeline</li>
+                    <li>Airtable workspace with approval workflow</li>
+                </ul></div>
+                <div class="animate-in"><ul class="check-list">
+                    <li>Google Drive media storage architecture</li>
+                    <li>Social scheduling (Instagram + TikTok)</li>
+                    <li>Performance analytics + feedback loop</li>
+                    <li>Weekly optimization and prompt tuning</li>
+                </ul></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><div class="card" style="background: var(--bg); text-align: center;"><p style="font-size: 15px; color: var(--text-secondary);"><strong>You own all tool accounts and data.</strong>&ensp;Even if you stop working with us, every account and every piece of content stays yours.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 12 - TOOL COSTS -->
+    <div class="slide" data-slide="12">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Third-Party Tools (You Own These)</p><h2 style="margin-bottom: 40px;">Platform Costs</h2></div>
+            <div class="animate-in"><div class="card" style="max-width: 700px; margin: 0 auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Apify (web scraping)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$49/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">LLM API (OpenAI / Claude)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50-100/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">ElevenLabs (TTS + voice)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$100-150/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Avatar generation (HeyGen or similar)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50-100/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Video assembly (Creatomate)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$50-80/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Social scheduling (Blotato / Buffer)</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$30-50/mo</td></tr>
+                        <tr style="border-bottom: 1px solid var(--border);"><td style="padding: 12px 0; font-size: 15px; font-weight: 500;">Airtable + Google Drive</td><td style="padding: 12px 0; font-size: 15px; text-align: right; color: var(--text-secondary);">~$30/mo</td></tr>
+                    </tbody>
+                    <tfoot><tr><td style="padding: 16px 0 0; font-size: 17px; font-weight: 700;">Estimated Total</td><td style="padding: 16px 0 0; font-size: 17px; font-weight: 700; text-align: right;">~$350-500/mo</td></tr></tfoot>
+                </table>
+            </div></div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><p style="font-size: 14px; color: var(--text-muted);">Direct subscriptions in your name. Full ownership regardless of engagement. We'll help select the most cost-effective stack.</p></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 13 - PRICING -->
+    <div class="slide" data-slide="13">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Investment</p><h2 style="margin-bottom: 48px;">Two Ways to Work Together</h2></div>
+            <div class="pricing-grid animate-in">
+                <div class="pricing-card">
+                    <div class="pricing-name">Option 1: One-Time Build</div>
+                    <div class="pricing-desc">We build it. You run it.</div>
+                    <div style="margin: 20px 0;"><span class="pricing-amount">$5,000</span><span class="pricing-period">&ensp;one-time</span></div>
+                    <ul class="pricing-features">
+                        <li>Full pipeline build &amp; configuration</li>
+                        <li>Apify + LLM + video production + scheduling</li>
+                        <li>Airtable approval workflow setup</li>
+                        <li>Analytics dashboard configured</li>
+                        <li>Training + 2 weeks post-handoff support</li>
+                    </ul>
+                    <div style="background: #FEF2F2; border-radius: 8px; padding: 12px 16px; margin-top: 20px;"><p style="font-size: 13px; color: #991B1B; line-height: 1.5;">No ongoing optimization or management. You handle operations, prompt tuning, and troubleshooting.</p></div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 12px;">Client manages day-to-day operations (~8-10 hrs/week)</p>
+                </div>
+                <div class="pricing-card recommended">
+                    <div class="pricing-badge">RECOMMENDED</div>
+                    <div class="pricing-name">Option 2: Fully Managed</div>
+                    <div class="pricing-desc">We build it. We run it. You focus on closing deals.</div>
+                    <div style="margin: 20px 0;"><span class="pricing-amount">$1,300</span><span class="pricing-period">&ensp;/month</span></div>
+                    <div style="background: var(--green-light); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px;">
+                        <p style="font-size: 14px; color: #065F46; font-weight: 600; margin-bottom: 2px;">$5,000 setup + $1,300/mo ongoing</p>
+                        <p style="font-size: 13px; color: #047857;">60 videos/month produced, posted, and optimized</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li>Everything in Option 1</li>
+                        <li>60 videos/month &mdash; fully produced and posted</li>
+                        <li>Continuous prompt and content optimization</li>
+                        <li>Performance analytics and feedback loop managed</li>
+                        <li>Weekly optimization based on real data</li>
+                        <li>System maintenance and troubleshooting</li>
+                    </ul>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 16px;">Setup: $2,500 upfront + $2,500 end of Month 1&ensp;&middot;&ensp;Retainer starts Month 2</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 14 - PHASE 2 VISION -->
+    <div class="slide" data-slide="14">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">What Comes Next</p><h2 style="margin-bottom: 12px;">Phase 2: Scale to 900</h2><p style="max-width: 700px; margin-bottom: 40px;">Once Phase 1 is proven and we know what converts, the pipeline scales.</p></div>
+            <div class="card-grid cols-3">
+                <div class="card animate-in"><div class="icon-circle blue">&#x1F4C8;</div><h3 style="font-size: 16px; margin-bottom: 8px;">5 Accounts</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Expand from 2 accounts to 5 &mdash; dominate the niche across Instagram and TikTok with multiple presences.</p></div>
+                <div class="card animate-in"><div class="icon-circle orange">&#x1F3AC;</div><h3 style="font-size: 16px; margin-bottom: 8px;">900 Videos / Month</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Same pipeline, higher volume. The R&amp;D from Phase 1 tells us exactly what hooks, angles, and styles to produce at scale.</p></div>
+                <div class="card animate-in"><div class="icon-circle green">&#x1F50D;</div><h3 style="font-size: 16px; margin-bottom: 8px;">Data-Driven Content</h3><p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">By Phase 2, the feedback loop has identified the top-performing marketing angles. Every video is optimized from Day 1.</p></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in text-center"><div class="card" style="display: inline-block; background: var(--bg);"><p style="font-size: 15px; color: var(--text-secondary);">Phase 1 first. Prove the machine, then scale it. Phase 2 is scoped and priced separately.</p></div></div>
+        </div>
+    </div>
+
+    <!-- SLIDE 15 - CLOSING -->
+    <div class="slide" data-slide="15">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 24px;">Let's Build<br><span class="serif" style="font-weight: 600;">Your Content Farm</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 600px; margin: 0 auto;">60 videos per month. Fully automated. Data-driven.<br>The only question is &mdash; when do we start?</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in">
+                <div style="display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Setup</p><p style="font-size: 16px; font-weight: 600;">$5,000 one-time</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Managed</p><p style="font-size: 16px; font-weight: 600;">$1,300 / month</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Go Live</p><p style="font-size: 16px; font-weight: 600;">Within 4 weeks</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION BAR -->
+<nav class="nav-bar">
+    <div class="nav-brand">Small Group</div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="nav-counter" id="counter">1 / 15</span>
+        <button class="nav-btn" id="nextBtn" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+</nav>
+
+<script>
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    const total = slides.length;
+    let current = 0;
+
+    function revealChildren(slide) {
+        const items = slide.querySelectorAll('.animate-in');
+        items.forEach((el, i) => { el.classList.remove('visible'); void el.offsetHeight; setTimeout(() => { el.classList.add('visible'); }, 50 + i * 70); });
+    }
+    function hideChildren(slide) { slide.querySelectorAll('.animate-in').forEach(el => { el.classList.remove('visible'); }); }
+    function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        const goingForward = index > current;
+        hideChildren(slides[current]);
+        slides[current].classList.remove('active', 'prev');
+        if (goingForward) slides[current].classList.add('prev');
+        current = index;
+        slides[current].classList.remove('prev');
+        slides[current].classList.add('active');
+        revealChildren(slides[current]);
+        counter.textContent = `${current + 1} / ${total}`;
+        progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+    document.getElementById('nextBtn').addEventListener('click', next);
+    document.getElementById('prevBtn').addEventListener('click', prev);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); } });
+    slides[0].classList.add('active');
+    revealChildren(slides[0]);
+    counter.textContent = `1 / ${total}`;
+    progressBar.style.width = `${(1 / total) * 100}%`;
+</script>
+</body>
+</html>

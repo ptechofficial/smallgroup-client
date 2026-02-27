@@ -7,6 +7,7 @@ Maps hashed filenames to clients. This file is NOT deployed publicly.
 | `1e79137d` | Ernest Chuang | `pitch_1e79137d.html` | `https://smallgroup-client.vercel.app/pitch_1e79137d` |
 | `cb07901c` | Joseph Cyriac | `pitch_cb07901c.html` | `https://smallgroup-client.vercel.app/pitch_cb07901c` |
 | `7292f7bf` | Matthew Smith | `pitch_7292f7bf.html` | `https://smallgroup-client.vercel.app/pitch_7292f7bf` |
+| `31f17d09` | Filippo (SYNACT) | `pitch_31f17d09.html` | `https://smallgroup-client.vercel.app/pitch_31f17d09` |
 
 ## Adding a new pitch
 
