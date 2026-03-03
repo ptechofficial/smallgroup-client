@@ -4,13 +4,17 @@
   "email": "",
   "phone": "",
   "industry": "Stock Trading / Investing App",
-  "status": "pitched",
+  "status": "lost",
   "source": "",
   "notes": "Content engine for stock trading app. Single-system, 5-pillar pitch. Targets 10-20K app downloads.",
   "created": "2026-02-11",
   "timeline": [
     { "date": "2026-02-11", "event": "Discovery call — discussed content engine for stock trading app growth" },
-    { "date": "2026-02-17", "event": "Sales script, pitch deck, and proposal generated — 5-pillar content engine, $7,500 one-time / $2,500/mo managed" }
+    { "date": "2026-02-17", "event": "Sales script, pitch deck, and proposal generated — 5-pillar content engine, $7,500 one-time / $2,500/mo managed" },
+    { "date": "2026-02-19", "event": "Follow-up sent. Ernest said he's waiting on another firm's pricing." },
+    { "date": "2026-02-21", "event": "Applied urgency. Ernest acknowledged, said he'd keep us posted." },
+    { "date": "2026-02-25", "event": "Deal lost — Ernest went with a local firm (slightly higher price, but proximity won). Reason: 'they're local, just easier.'" }
   ],
-  "current_status": "Pitch materials sent. Waiting for Ernest's decision. No follow-up activity since pitch delivery."
+  "current_status": "Lost to local competitor. Ernest chose a higher-priced local firm for convenience/proximity. No price objection — purely a locality preference. Door left open if things change.",
+  "loss_reason": "Competitor was local (proximity). No price advantage — they were actually higher."
 }

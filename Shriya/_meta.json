@@ -4,7 +4,7 @@
   "email": "",
   "phone": "",
   "industry": "Digital Marketing Agency",
-  "status": "pitched",
+  "status": "negotiating",
   "source": "",
   "notes": "Multi-system: Ad Intelligence ($2.5k, deferred), Lead Gen ($500/mo trial), Website Pop-up ($600, 50/50 split). Client: HyperKidz franchise (indoor playgrounds, PHP/HTML/CSS/Bootstrap). Partner: Neha (tech). ICP: franchise owners, $3k+ spend, UK/US/Dubai/Canada/Australia. Goal: 3 closed clients/mo at $3k marketing-as-a-service.",
   "created": "2026-02-08",
@@ -14,7 +14,11 @@
     { "date": "2026-02-24", "event": "Sales script, pitch deck, and proposal generated — 3 independent systems with per-system pricing" },
     { "date": "2026-02-24", "event": "Pitch call — walked through deck. Website pop-up = top priority. Lead gen = test at $500/mo. Ad intel deferred to stakeholders." },
     { "date": "2026-02-25", "event": "Website popup system priced at firm $1,000 after scope clarification (8-10 HyperKidz sites)" },
-    { "date": "2026-03-01", "event": "Follow-up call with Neha. Website confirmed at $600 (50/50 split). Lead gen $500/mo for 3-month trial. Shriya to grant backend access to hyperkidsplay.com. Finance approval pending same day." }
+    { "date": "2026-03-01", "event": "Follow-up call with Neha. Website confirmed at $600 (50/50 split). Lead gen $500/mo for 3-month trial. Shriya to grant backend access to hyperkidsplay.com. Finance approval pending same day." },
+    { "date": "2026-02-26", "event": "Shriya confirmed planning to move forward. Budget for lead gen: $350/mo. Website is Bootstrap CSS/HTML. Call scheduled for Sun/Mon." },
+    { "date": "2026-02-27", "event": "Counter-offered bundled deal: Website popup $600 (firm, 10 HyperKidz sites) + Lead gen $400/mo (scaled down from $500). Total $1,000 to start." },
+    { "date": "2026-02-28", "event": "Shriya agreed to discuss on upcoming call. Neha will join." },
+    { "date": "2026-03-01", "event": "Follow-up call confirmed — Shriya and Neha joined." }
   ],
-  "current_status": "Website pop-up confirmed ($600, awaiting backend access). Lead gen 99% approved ($500/mo, pending finance). Ad intelligence deferred — separate call with Neha TBD. Near-closing on 2 of 3 systems."
+  "current_status": "Active negotiation. Bundled offer on table: Website popup $600 + Lead gen $400/mo. Shriya + Neha on the call Mar 1. Waiting on final decision post-call. Deal very likely to close."
 }

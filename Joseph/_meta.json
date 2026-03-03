@@ -13,7 +13,11 @@
     { "date": "2026-02-13", "event": "Follow-up email sent + requirement analysis completed" },
     { "date": "2026-02-13", "event": "Sales script, pitch deck, and proposal generated — $3,500 one-time / $1,500/mo managed" },
     { "date": "2026-02-27", "event": "Joseph came back — negotiated down to $900/mo managed, reduced volume (100 LinkedIn/week, 50 DMs/week, 200 cold emails/week), no minimum contract" },
-    { "date": "2026-02-27", "event": "Revised proposal sent at $900/mo with reduced scope, month-to-month with advance payment" }
+    { "date": "2026-02-27", "event": "Revised proposal sent at $900/mo with reduced scope, month-to-month with advance payment" },
+    { "date": "2026-02-27", "event": "Joseph reviewed revised proposal — raised 4 questions: system ownership, payment split, tool cost increase, multi-touch vs 7-touch sequence" },
+    { "date": "2026-02-28", "event": "Prakarsh addressed all 4 questions. Agreed to split Month 1 ($450+$450). Clarified ownership stays with Small Group on managed plan. Tool costs corrected to $100-200/mo." },
+    { "date": "2026-03-01", "event": "Follow-up sent — asked if he's gone through the proposal" },
+    { "date": "2026-03-02", "event": "Joseph replied: weighing agency costs vs hiring an individual person. Prakarsh pushed urgency — need to move fast and build systems." }
   ],
-  "current_status": "Revised proposal sent at $900/mo with reduced scope. Waiting for Joseph's final decision. He's bootstrapping and funding tools out of pocket — likely needs time to commit."
+  "current_status": "Joseph is weighing agency cost ($900/mo) vs. hiring someone directly. All proposal questions answered. Split payment agreed for Month 1. He's not saying no — he's justifying the spend. Needs a nudge or a compelling reason to commit over DIY/hiring."
 }
