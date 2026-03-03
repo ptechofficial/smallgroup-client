@@ -7,5 +7,10 @@
   "status": "pitched",
   "source": "",
   "notes": "Content engine for stock trading app. Single-system, 5-pillar pitch. Targets 10-20K app downloads.",
-  "created": "2026-02-11"
+  "created": "2026-02-11",
+  "timeline": [
+    { "date": "2026-02-11", "event": "Discovery call — discussed content engine for stock trading app growth" },
+    { "date": "2026-02-17", "event": "Sales script, pitch deck, and proposal generated — 5-pillar content engine, $7,500 one-time / $2,500/mo managed" }
+  ],
+  "current_status": "Pitch materials sent. Waiting for Ernest's decision. No follow-up activity since pitch delivery."
 }

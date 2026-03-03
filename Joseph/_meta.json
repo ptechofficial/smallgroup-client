@@ -7,5 +7,13 @@
   "status": "pitched",
   "source": "Calendly booking",
   "notes": "Lead gen for construction staffing. Revised to $900/mo managed, reduced volume, no minimum contract.",
-  "created": "2026-02-12"
+  "created": "2026-02-12",
+  "timeline": [
+    { "date": "2026-02-12", "event": "Discovery call — lead gen for construction staffing, bootstrapping, price-sensitive" },
+    { "date": "2026-02-13", "event": "Follow-up email sent + requirement analysis completed" },
+    { "date": "2026-02-13", "event": "Sales script, pitch deck, and proposal generated — $3,500 one-time / $1,500/mo managed" },
+    { "date": "2026-02-27", "event": "Joseph came back — negotiated down to $900/mo managed, reduced volume (100 LinkedIn/week, 50 DMs/week, 200 cold emails/week), no minimum contract" },
+    { "date": "2026-02-27", "event": "Revised proposal sent at $900/mo with reduced scope, month-to-month with advance payment" }
+  ],
+  "current_status": "Revised proposal sent at $900/mo with reduced scope. Waiting for Joseph's final decision. He's bootstrapping and funding tools out of pocket — likely needs time to commit."
 }

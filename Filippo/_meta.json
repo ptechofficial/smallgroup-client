@@ -4,8 +4,17 @@
   "email": "",
   "phone": "",
   "industry": "AI Education / Content Creation",
-  "status": "lead",
+  "status": "pitched",
   "source": "WhatsApp (returning contact — previous project fell through)",
-  "notes": "Intermediary for AI education content creator. Content automation farm — 60 videos/mo Phase 1. $5K setup + retainer.",
-  "created": "2026-02-25"
+  "notes": "Intermediary for AI education content creator. Content automation farm — 60 videos/mo Phase 1. $4-4.5K setup + $1,200-1,300/mo retainer.",
+  "created": "2026-02-25",
+  "timeline": [
+    { "date": "2026-02-25", "event": "Discovery call with Filippo — discussed content farm automation for AI education creator" },
+    { "date": "2026-02-25", "event": "WhatsApp follow-up — Filippo shared PRD document for the content farm project" },
+    { "date": "2026-02-27", "event": "Sales script, pitch deck, and proposal generated — two pricing tiers (60 vs 900 videos/mo)" },
+    { "date": "2026-02-28", "event": "Revised proposal sent with updated scope and pricing" },
+    { "date": "2026-02-28", "event": "Pitch deck deployed to public URL for Filippo to share with client" },
+    { "date": "2026-03-03", "event": "Follow-up call — narrowed scope to 60 videos/mo start, discussed pricing ($4-4.5K setup + $1,200-1,300/mo retainer)" }
+  ],
+  "current_status": "Waiting for Filippo to get answers from his client on 3 open questions: (1) sample videos showing desired style, (2) confirmed video count (60 vs 900/mo), (3) same video on both platforms or unique per platform. Architecture and final pricing depend on these answers."
 }

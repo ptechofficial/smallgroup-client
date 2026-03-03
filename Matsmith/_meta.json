@@ -6,6 +6,12 @@
   "industry": "Facebook Ads Agency (Roofers / Home Improvement)",
   "status": "pitched",
   "source": "Social media post",
-  "notes": "6.5-year Facebook ads agency. Uses Go High Level. Interested in ad creation automation.",
-  "created": "2026-02-19"
+  "notes": "6.5-year Facebook ads agency. Uses Go High Level. Initially pitched ad creation automation. Follow-up call revealed interest in 7+ systems: LinkedIn automation, cold email lead gen, Instagram, content creation, recruitment/HR agent, SEO blog writer, AI/LLM visibility. Seasonal business, manages ~50 clients. Wants to scale to 100+. Big upsell opportunity.",
+  "created": "2026-02-19",
+  "timeline": [
+    { "date": "2026-02-19", "event": "Discovery call — 6.5-year Facebook ads agency, uses Go High Level, wants ad creation automation" },
+    { "date": "2026-02-21", "event": "Pre-call questions prepared + sales script, pitch deck, and proposal generated" },
+    { "date": "2026-02-19", "event": "Follow-up call — Mat revealed interest in 7+ systems beyond ad creation. WhatsApp group to be created. Saturday follow-up call scheduled." }
+  ],
+  "current_status": "Follow-up call completed. Mat interested in multiple systems (LinkedIn, cold email, Instagram, content, HR agent, SEO, AI/LLM visibility). WhatsApp group being created. Next call: Saturday to demo systems."
 }

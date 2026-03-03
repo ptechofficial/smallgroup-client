@@ -22,3 +22,11 @@
 [10:20 pm, 25/2/2026] Prakarsh: Okay, what budget are we looking at?
 
 [10:23 pm, 25/2/2026] Filippo, ORBIT Web3: He told me something like 6-8k setup. Obviously you tell me whats the real budget for a project like this and then if thers any mantainance monthly fees. Let's talk about everything on the call bro
+
+---
+
+### February 27, 2026
+
+[9:15 pm, 27/2/2026] Filippo, ORBIT Web3: Hey man, send me everything so i can check and then we can have a call. For example i mentioned elevenlabs on the doc but maybe is better to use another ai model in order to recreate the same video as reference.
+
+[9:17 pm, 27/2/2026] Filippo, ORBIT Web3: Also mention the budget please, so i immediately understand if the client wants to procede or he's out of budget. Don't want you to waste time

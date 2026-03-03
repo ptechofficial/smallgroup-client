@@ -267,6 +267,20 @@ html, body { width: 100%; min-height: 100vh; font-family: 'Inter', -apple-system
 .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
 .empty-text { font-size: 16px; }
 
+/* Current Status Section */
+.status-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
+.status-current { font-size: 15px; line-height: 1.7; color: var(--text-secondary); padding: 16px 20px; background: var(--blue-light); border-radius: 8px; border-left: 3px solid var(--blue); }
+
+/* Timeline */
+.timeline { margin-top: 20px; position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 4px; bottom: 4px; width: 2px; background: var(--border); }
+.timeline-item { position: relative; padding-bottom: 16px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-dot { position: absolute; left: -24px; top: 3px; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--border); background: var(--surface); }
+.timeline-item:last-child .timeline-dot { border-color: var(--blue); background: var(--blue); }
+.timeline-date { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.02em; }
+.timeline-event { font-size: 14px; color: var(--text-secondary); margin-top: 2px; line-height: 1.5; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .header { padding: 0 16px; }
@@ -382,6 +396,26 @@ function renderDetail(idx) {
   html += '</div>';
   if (c.meta.notes) html += '<div class="detail-notes">' + esc(c.meta.notes) + '</div>';
   html += '</div>';
+
+  // Current Status & Timeline
+  if (c.meta.current_status || (c.meta.timeline && c.meta.timeline.length > 0)) {
+    html += '<div class="section-title">Current Status</div><div class="status-card">';
+    if (c.meta.current_status) {
+      html += '<div class="status-current">' + esc(c.meta.current_status) + '</div>';
+    }
+    if (c.meta.timeline && c.meta.timeline.length > 0) {
+      html += '<div class="timeline">';
+      c.meta.timeline.forEach(function(t, ti) {
+        html += '<div class="timeline-item">';
+        html += '<div class="timeline-dot"></div>';
+        html += '<div class="timeline-date">' + esc(t.date) + '</div>';
+        html += '<div class="timeline-event">' + esc(t.event) + '</div>';
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  }
 
   // Documents (markdown)
   if (c.documents.length > 0) {
