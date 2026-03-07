@@ -11,6 +11,13 @@
       ]
     },
     {
+      "source": "/ai-native.html",
+      "headers": [
+        { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
       "source": "/crm_(.*).html",
       "headers": [
         { "key": "X-Robots-Tag", "value": "noindex, nofollow" },
