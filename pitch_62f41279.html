@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Small Group — Emilio / Academia Ecom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #FAFAFA; --surface: #FFFFFF; --text-primary: #111111;
+            --text-secondary: #555555; --text-muted: #999999;
+            --accent: #1A1A2E; --accent-light: #16213E; --highlight: #0F3460;
+            --blue: #2563EB; --blue-light: #EFF6FF;
+            --green: #059669; --green-light: #ECFDF5;
+            --orange: #D97706; --orange-light: #FFFBEB;
+            --red: #DC2626; --red-light: #FEF2F2;
+            --border: #E5E7EB;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.03);
+            --radius: 12px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; overflow: hidden; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: var(--bg); color: var(--text-primary); -webkit-font-smoothing: antialiased; }
+        .deck { width: 100%; height: 100%; position: relative; }
+        .slide { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 60px 80px; opacity: 0; visibility: hidden; transform: translateX(40px); transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1); background: var(--bg); overflow-y: auto; }
+        .slide.active { opacity: 1; visibility: visible; transform: translateX(0); }
+        .slide.prev { transform: translateX(-40px); }
+        .slide-inner { max-width: 1100px; width: 100%; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: var(--surface); border-top: 1px solid var(--border); z-index: 100; user-select: none; }
+        .nav-brand { font-weight: 700; font-size: 14px; letter-spacing: -0.02em; color: var(--accent); }
+        .nav-controls { display: flex; align-items: center; gap: 16px; }
+        .nav-btn { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; color: var(--text-primary); }
+        .nav-btn:hover { background: var(--bg); border-color: #ccc; }
+        .nav-btn svg { width: 16px; height: 16px; }
+        .nav-counter { font-size: 13px; color: var(--text-muted); font-weight: 500; min-width: 50px; text-align: center; font-variant-numeric: tabular-nums; }
+        .progress-bar { position: fixed; top: 0; left: 0; height: 3px; background: var(--accent); transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1); z-index: 100; }
+        .serif { font-family: 'Playfair Display', Georgia, serif; }
+        h1 { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+        h2 { font-size: 40px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.2; }
+        h3 { font-size: 24px; font-weight: 600; letter-spacing: -0.015em; line-height: 1.3; }
+        p { font-size: 18px; line-height: 1.6; color: var(--text-secondary); }
+        .label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+        .subtitle { font-size: 22px; font-weight: 400; color: var(--text-secondary); line-height: 1.5; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; box-shadow: var(--shadow); }
+        .card-grid { display: grid; gap: 20px; }
+        .card-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+        .card-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+        .card-grid.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+        .stat { text-align: center; }
+        .stat-number { font-size: 48px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); line-height: 1; }
+        .stat-label { font-size: 14px; color: var(--text-muted); margin-top: 8px; font-weight: 500; }
+        .icon-circle { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; font-size: 22px; }
+        .icon-circle.blue { background: var(--blue-light); }
+        .icon-circle.green { background: var(--green-light); }
+        .icon-circle.orange { background: var(--orange-light); }
+        .spacer-16 { height: 16px; } .spacer-24 { height: 24px; } .spacer-32 { height: 32px; } .spacer-40 { height: 40px; } .spacer-48 { height: 48px; }
+        .text-center { text-align: center; }
+        .check-list { list-style: none; }
+        .check-list li { padding: 10px 0; font-size: 17px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 12px; line-height: 1.4; }
+        .check-list li::before { content: '\2713'; color: var(--green); font-weight: 700; font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+        .vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 24px; align-items: center; }
+        .vs-block { padding: 32px; border-radius: var(--radius); }
+        .vs-block.before { background: #FEF2F2; border: 1px solid #FECACA; }
+        .vs-block.after { background: var(--green-light); border: 1px solid #A7F3D0; }
+        .vs-divider { font-size: 24px; font-weight: 700; color: var(--text-muted); }
+        .animate-in { opacity: 0; transform: translateY(16px); transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1); }
+        .animate-in.visible { opacity: 1; transform: translateY(0); }
+
+        /* ── System Flow Map ── */
+        .flow-map { display: flex; flex-direction: column; align-items: center; gap: 0; }
+        .flow-row { display: flex; justify-content: center; gap: 12px; width: 100%; }
+        .flow-box { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 12px 20px; text-align: center; font-size: 13px; font-weight: 500; color: var(--text-primary); box-shadow: var(--shadow); min-width: 140px; }
+        .flow-box strong { display: block; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+        .flow-box.highlight-blue { border-color: var(--blue); background: var(--blue-light); }
+        .flow-box.highlight-green { border-color: var(--green); background: var(--green-light); }
+        .flow-box.highlight-orange { border-color: var(--orange); background: var(--orange-light); }
+        .flow-box.highlight-accent { border-color: var(--accent); background: #F0F0F5; }
+        .flow-box.highlight-red { border-color: var(--red); background: var(--red-light); }
+        .flow-connector { display: flex; justify-content: center; padding: 6px 0; font-size: 18px; color: var(--text-muted); }
+        .flow-branch { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; width: 100%; max-width: 700px; }
+        .flow-branch-col { display: flex; flex-direction: column; align-items: center; gap: 0; }
+        .flow-branch-header { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; padding: 8px 16px; border-radius: 6px; margin-bottom: 4px; }
+        .flow-branch-header.booked { background: var(--green-light); color: #065F46; }
+        .flow-branch-header.not-booked { background: var(--orange-light); color: #92400E; }
+
+        /* ── Pricing Toggle ── */
+        .pricing-toggle { display: flex; justify-content: center; gap: 0; margin-bottom: 40px; background: #F3F4F6; border-radius: 12px; padding: 4px; max-width: 520px; margin-left: auto; margin-right: auto; }
+        .pricing-toggle-btn { flex: 1; padding: 14px 24px; border: none; background: transparent; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-radius: 10px; transition: all 0.3s; position: relative; }
+        .pricing-toggle-btn.active { background: var(--surface); color: var(--text-primary); box-shadow: var(--shadow-md); }
+        .pricing-toggle-btn .badge { position: absolute; top: -8px; right: 12px; background: var(--accent); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 100px; }
+        .pricing-content { transition: opacity 0.3s; }
+        .pricing-content.hidden { display: none; }
+        .deliverable-list { list-style: none; max-width: 800px; margin: 0 auto; }
+        .deliverable-list li { padding: 12px 16px; font-size: 15px; color: var(--text-secondary); display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
+        .deliverable-list li:last-child { border-bottom: none; }
+        .deliverable-list li .d-icon { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+        .deliverable-list li .d-icon.included { background: var(--green-light); color: var(--green); }
+        .deliverable-list li .d-icon.excluded { background: #F3F4F6; color: var(--text-muted); }
+        .deliverable-list li.excluded { opacity: 0.45; }
+        .deliverable-list li .d-label { font-weight: 600; color: var(--text-primary); min-width: 200px; }
+        .deliverable-list li .d-desc { color: var(--text-secondary); flex: 1; }
+        .deliverable-list li .d-tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.03em; flex-shrink: 0; }
+        .deliverable-list li .d-tag.full-only { background: #F3F4F6; color: var(--text-muted); }
+
+        .price-summary { display: flex; justify-content: center; gap: 32px; align-items: center; margin-top: 32px; padding-top: 24px; border-top: 2px solid var(--border); }
+        .price-big { font-size: 56px; font-weight: 800; letter-spacing: -0.03em; color: var(--text-primary); }
+        .price-period { font-size: 18px; color: var(--text-muted); font-weight: 400; }
+        .price-note { font-size: 14px; color: var(--text-secondary); max-width: 280px; line-height: 1.5; }
+
+        /* ── Timeline ── */
+        .timeline { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0; position: relative; }
+        .timeline::before { content: ''; position: absolute; top: 24px; left: 24px; right: 24px; height: 2px; background: var(--border); }
+        .timeline-item { position: relative; padding: 0 16px; }
+        .timeline-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); margin-bottom: 20px; position: relative; z-index: 2; margin-left: 8px; }
+        .timeline-week { font-size: 12px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+        .timeline-title { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .timeline-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
+
+        @media (max-width: 900px) {
+            .slide { padding: 40px 24px; }
+            h1 { font-size: 36px; } h2 { font-size: 28px; }
+            .card-grid.cols-3, .card-grid.cols-4 { grid-template-columns: 1fr 1fr; }
+            .vs-grid { grid-template-columns: 1fr; } .vs-divider { transform: rotate(90deg); }
+            .flow-branch { grid-template-columns: 1fr; gap: 24px; }
+            .timeline { grid-template-columns: 1fr 1fr; gap: 24px; } .timeline::before { display: none; }
+            .deliverable-list li { flex-wrap: wrap; }
+            .deliverable-list li .d-label { min-width: auto; }
+            .price-summary { flex-direction: column; gap: 12px; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<div class="deck" id="deck">
+
+    <!-- ================================================================
+         SLIDE 1 — TITLE
+         ================================================================ -->
+    <div class="slide active" data-slide="1">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 20px;">Your Show Rate<br><span class="serif" style="font-weight: 600;">System</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 600px; margin: 0 auto;">From 60% no-show to 65%+ show rate.<br>One system. 10 days. Built for Academia Ecom.</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in"><p style="font-size: 15px; color: var(--text-muted);">Prepared for Emilio Zevallos&ensp;&middot;&ensp;March 2026</p></div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 2 — THE PROBLEM
+         ================================================================ -->
+    <div class="slide" data-slide="2">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The Problem</p><h2 style="margin-bottom: 48px;">60% No-Show Rate Is<br><span class="serif">Costing You Money</span></h2></div>
+            <div class="vs-grid animate-in">
+                <div class="vs-block before">
+                    <p class="label" style="color: #DC2626; margin-bottom: 16px;">Today</p>
+                    <h3 style="font-size: 42px; font-weight: 800; color: #991B1B; margin-bottom: 16px;">60%</h3>
+                    <p style="font-size: 16px; color: #991B1B; margin-bottom: 16px;">no-show rate</p>
+                    <ul style="list-style: none; font-size: 14px; color: #B91C1C; line-height: 2.2;">
+                        <li>20 calls booked &rarr; only 8 show up</li>
+                        <li>2-3 manual WhatsApp messages, morning-of</li>
+                        <li>Prospects come cold &mdash; ask basic questions on the call</li>
+                        <li>~$1,380/month in revenue</li>
+                    </ul>
+                </div>
+                <div class="vs-divider">&rarr;</div>
+                <div class="vs-block after">
+                    <p class="label" style="color: var(--green); margin-bottom: 16px;">After Our System</p>
+                    <h3 style="font-size: 42px; font-weight: 800; color: #065F46; margin-bottom: 16px;">65%+</h3>
+                    <p style="font-size: 16px; color: #065F46; margin-bottom: 16px;">show rate</p>
+                    <ul style="list-style: none; font-size: 14px; color: #047857; line-height: 2.2;">
+                        <li>20 calls booked &rarr; 13+ show up</li>
+                        <li>10-15 automated touchpoints between booking and call</li>
+                        <li>Prospects arrive educated, trust built, ready to buy</li>
+                        <li>~$2,200+/month in revenue</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><div class="card" style="display: inline-block; background: var(--accent); padding: 16px 32px;"><p style="font-size: 16px; color: rgba(255,255,255,0.95); margin: 0;"><strong style="color: white;">+$862/month</strong> from show rate improvement alone. System pays for itself in under 2 months.</p></div></div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 3 — SYSTEM FLOW MAP
+         ================================================================ -->
+    <div class="slide" data-slide="3">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">How It Works</p><h2 style="margin-bottom: 36px;">The Complete System</h2></div>
+            <div class="flow-map animate-in">
+                <!-- Traffic Sources -->
+                <div class="flow-row">
+                    <div class="flow-box" style="min-width: 110px; padding: 10px 16px;"><strong style="font-size: 13px;">Instagram Ads</strong></div>
+                    <div class="flow-box" style="min-width: 110px; padding: 10px 16px;"><strong style="font-size: 13px;">Facebook Ads</strong></div>
+                    <div class="flow-box" style="min-width: 110px; padding: 10px 16px;"><strong style="font-size: 13px;">YouTube</strong></div>
+                </div>
+                <div class="flow-connector">&darr;</div>
+
+                <!-- Lead Capture -->
+                <div class="flow-row">
+                    <div class="flow-box highlight-blue" style="max-width: 380px;">
+                        <strong>Lead Capture Page</strong>
+                        Name &middot; Email &middot; Phone + 3 Qualifying Questions<br>
+                        <span style="font-size: 11px; color: var(--blue);">Pixel fires &ldquo;Lead&rdquo; to Meta</span>
+                    </div>
+                </div>
+                <div class="flow-connector">&darr;</div>
+
+                <!-- Landing Page -->
+                <div class="flow-row">
+                    <div class="flow-box highlight-blue" style="max-width: 380px;">
+                        <strong>Landing Page</strong>
+                        VSSL (with chapters) + GHL Calendar<br>
+                        <span style="font-size: 11px; color: var(--blue);">2-3 day booking window &middot; Pixel fires &ldquo;Schedule&rdquo;</span>
+                    </div>
+                </div>
+                <div class="flow-connector" style="font-size: 14px; color: var(--text-secondary); padding: 8px 0;">Prospect either books or doesn&rsquo;t &darr;</div>
+
+                <!-- Branch -->
+                <div class="flow-branch">
+                    <!-- BOOKED PATH -->
+                    <div class="flow-branch-col">
+                        <div class="flow-branch-header booked">BOOKED</div>
+                        <div class="flow-connector">&darr;</div>
+                        <div class="flow-box highlight-green" style="width: 100%;">
+                            <strong>Confirmation Page</strong>
+                            Research Hub &middot; Breakout Videos<br>Testimonials &middot; Trust Assets
+                        </div>
+                        <div class="flow-connector">&darr;</div>
+                        <div class="flow-box highlight-green" style="width: 100%;">
+                            <strong>Post-Booking Sequence</strong>
+                            6 Research Emails (2-3/day)<br>
+                            Sales Rep Selfie Video<br>
+                            WhatsApp Reminders
+                        </div>
+                        <div class="flow-connector">&darr;</div>
+                        <div class="flow-box highlight-accent" style="width: 100%;">
+                            <strong>CALL DAY</strong>
+                            65%+ show rate &middot; Educated prospect
+                        </div>
+                    </div>
+
+                    <!-- NOT BOOKED PATH -->
+                    <div class="flow-branch-col">
+                        <div class="flow-branch-header not-booked">NOT BOOKED</div>
+                        <div class="flow-connector">&darr;</div>
+                        <div class="flow-box highlight-orange" style="width: 100%;">
+                            <strong>Nudge Sequence</strong>
+                            5 Pre-Booking Emails<br>
+                            4 WhatsApp Messages
+                        </div>
+                        <div class="flow-connector">&darr;</div>
+                        <div class="flow-box" style="width: 100%; border-style: dashed;">
+                            <strong>&larr; Back to Booking</strong>
+                            When they book, they enter<br>the green path
+                        </div>
+                        <div class="flow-connector">&darr;</div>
+                        <div class="flow-box highlight-orange" style="width: 100%; border-style: dashed;">
+                            <strong>Long-Term Follow-Up</strong>
+                            4 WhatsApp messages over 8 weeks<br>
+                            Value shares + social proof
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 4 — WHAT WE BUILD (4 Pillars)
+         ================================================================ -->
+    <div class="slide" data-slide="4">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The Build</p><h2 style="margin-bottom: 40px;">What We Build For You</h2></div>
+            <div class="card-grid cols-2">
+                <div class="card animate-in" style="border-top: 3px solid var(--blue);">
+                    <div class="icon-circle blue">1</div>
+                    <h3 style="font-size: 17px; margin-bottom: 12px;">Capture &amp; Qualify</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#10003;&ensp;Lead Capture Page (6-step qualifying form)</li>
+                        <li>&#10003;&ensp;Landing Page (VSSL + GHL calendar)</li>
+                        <li>&#10003;&ensp;GHL pipeline, tags, calendar setup</li>
+                        <li>&#10003;&ensp;Meta Pixel events (Lead + Schedule)</li>
+                    </ul>
+                </div>
+                <div class="card animate-in" style="border-top: 3px solid var(--orange);">
+                    <div class="icon-circle orange">2</div>
+                    <h3 style="font-size: 17px; margin-bottom: 12px;">Nurture Non-Bookers</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#10003;&ensp;5 Pre-Booking Emails (drive them to book)</li>
+                        <li>&#10003;&ensp;4 WhatsApp Nudge Messages</li>
+                        <li>&#10003;&ensp;Auto-tagging and smart re-engagement</li>
+                        <li>&#10003;&ensp;Exit to booking path when they convert</li>
+                    </ul>
+                </div>
+                <div class="card animate-in" style="border-top: 3px solid var(--green);">
+                    <div class="icon-circle green">3</div>
+                    <h3 style="font-size: 17px; margin-bottom: 12px;">Research Hub (Show Rate Fix)</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#10003;&ensp;Confirmation Page with 8 breakout videos</li>
+                        <li>&#10003;&ensp;8 Breakout Video Scripts (we write them)</li>
+                        <li>&#10003;&ensp;6 Post-Booking Research Emails</li>
+                        <li>&#10003;&ensp;Sales Rep Pre-Call Protocol + scripts</li>
+                    </ul>
+                </div>
+                <div class="card animate-in" style="border-top: 3px solid var(--accent);">
+                    <div class="icon-circle" style="background: #F0F0F5;">4</div>
+                    <h3 style="font-size: 17px; margin-bottom: 12px;">Convert &amp; Track</h3>
+                    <ul style="list-style: none; font-size: 14px; color: var(--text-secondary); line-height: 2;">
+                        <li>&#10003;&ensp;WhatsApp Booked Reminders (3 messages)</li>
+                        <li>&#10003;&ensp;Long-Term Follow-Up (8 weeks)</li>
+                        <li>&#10003;&ensp;Pixel Conditioning + Conversion API</li>
+                        <li>&#10003;&ensp;Full end-to-end testing before go-live</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 5 — THE ROI
+         ================================================================ -->
+    <div class="slide" data-slide="5">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">The Math</p><h2 style="margin-bottom: 48px;">This System Pays For Itself<br><span class="serif">In Under 2 Months</span></h2></div>
+            <div class="card-grid cols-3 animate-in">
+                <div class="card stat">
+                    <div class="stat-label" style="margin-top: 0; margin-bottom: 12px;">Current Revenue</div>
+                    <div class="stat-number" style="font-size: 36px; color: var(--red);">$1,380</div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">8 shows &times; 30% close &times; $575 avg</p>
+                </div>
+                <div class="card stat" style="border: 2px solid var(--green);">
+                    <div class="stat-label" style="margin-top: 0; margin-bottom: 12px;">After Our System</div>
+                    <div class="stat-number" style="font-size: 36px; color: var(--green);">$2,242</div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">13 shows &times; 30% close &times; $575 avg</p>
+                </div>
+                <div class="card stat" style="border: 2px solid var(--accent);">
+                    <div class="stat-label" style="margin-top: 0; margin-bottom: 12px;">Extra Revenue / Month</div>
+                    <div class="stat-number" style="font-size: 36px; color: var(--accent);">+$862</div>
+                    <p style="font-size: 13px; color: var(--text-muted); margin-top: 8px;">Conservative &mdash; close rate likely improves too</p>
+                </div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><div class="card" style="max-width: 700px; margin: 0 auto; background: var(--accent); text-align: left;"><p style="font-size: 16px; line-height: 1.7; color: rgba(255,255,255,0.9); margin: 0;">And this is conservative. The research sequence also makes prospects <strong style="color: white;">more educated</strong>, which should push close rate from 30% to 35-40%. At 35% close: <strong style="color: white;">+$1,236/month</strong>. The system pays for itself, then it's pure profit forever.</p></div></div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 6 — PRICING (Interactive Toggle)
+         ================================================================ -->
+    <div class="slide" data-slide="6">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Investment</p><h2 style="margin-bottom: 32px; text-align: center;">Pick Your System</h2></div>
+
+            <div class="animate-in">
+                <!-- Toggle Buttons -->
+                <div class="pricing-toggle">
+                    <button class="pricing-toggle-btn active" onclick="showPricing('full')" id="btn-full">
+                        <span class="badge">RECOMMENDED</span>
+                        Full System &mdash; $1,500
+                    </button>
+                    <button class="pricing-toggle-btn" onclick="showPricing('core')" id="btn-core">
+                        Core System &mdash; $800
+                    </button>
+                </div>
+
+                <!-- FULL SYSTEM Content -->
+                <div class="pricing-content" id="pricing-full">
+                    <div class="card" style="padding: 24px 32px;">
+                        <ul class="deliverable-list">
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">GHL Account Setup</span><span class="d-desc">Pipeline, tags, calendar (2-3 day booking window)</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Lead Capture Page</span><span class="d-desc">6-step qualifying form with smart tags</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Landing Page</span><span class="d-desc">VSSL with chapters + GHL calendar</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Pre-Booking Emails</span><span class="d-desc">5 emails to drive non-bookers to book</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">WhatsApp Non-Booker Nudge</span><span class="d-desc">4-message automated sequence</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">WhatsApp Booked Reminders</span><span class="d-desc">3 messages (confirmation + 24h + 1h)</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Meta Pixel Events</span><span class="d-desc">Lead + Schedule events firing to Meta</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">End-to-End Testing</span><span class="d-desc">Full flow tested before go-live</span></li>
+                            <li style="background: var(--green-light); border-radius: 8px; margin-top: 8px;"><span class="d-icon included">&#10003;</span><span class="d-label" style="color: #065F46;">Research Hub Page</span><span class="d-desc" style="color: #047857;">Confirmation page with 8 breakout video slots + trust assets</span></li>
+                            <li style="background: var(--green-light); border-radius: 8px;"><span class="d-icon included">&#10003;</span><span class="d-label" style="color: #065F46;">8 Breakout Video Scripts</span><span class="d-desc" style="color: #047857;">We write every script &mdash; you record ~15 min total</span></li>
+                            <li style="background: var(--green-light); border-radius: 8px;"><span class="d-icon included">&#10003;</span><span class="d-label" style="color: #065F46;">6 Post-Booking Emails</span><span class="d-desc" style="color: #047857;">Research-oriented, 2-3/day between booking and call</span></li>
+                            <li style="background: var(--green-light); border-radius: 8px;"><span class="d-icon included">&#10003;</span><span class="d-label" style="color: #065F46;">Sales Rep Protocol</span><span class="d-desc" style="color: #047857;">Selfie video scripts + trust asset sharing playbook</span></li>
+                            <li style="background: var(--green-light); border-radius: 8px;"><span class="d-icon included">&#10003;</span><span class="d-label" style="color: #065F46;">Long-Term Follow-Up</span><span class="d-desc" style="color: #047857;">4 WhatsApp messages over 8 weeks for cold leads</span></li>
+                            <li style="background: var(--green-light); border-radius: 8px; margin-bottom: 4px;"><span class="d-icon included">&#10003;</span><span class="d-label" style="color: #065F46;">Pixel Conditioning + CAPI</span><span class="d-desc" style="color: #047857;">Advanced ad signal optimization from sales team data</span></li>
+                        </ul>
+                    </div>
+                    <div class="price-summary">
+                        <div><span class="price-big">$1,500</span><span class="price-period">&ensp;one-time</span></div>
+                        <div class="price-note">15 deliverables. The complete system that attacks the show rate problem head-on. Delivered in 10 days.</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 16px;"><div style="display: inline-block; background: var(--green-light); border-radius: 8px; padding: 12px 24px;"><p style="font-size: 14px; color: #065F46; margin: 0;"><strong>Guarantee:</strong> Show rate doesn&rsquo;t improve by 10 points in 30 days? We refund $700. You keep the base funnel.</p></div></div>
+                </div>
+
+                <!-- CORE SYSTEM Content -->
+                <div class="pricing-content hidden" id="pricing-core">
+                    <div class="card" style="padding: 24px 32px;">
+                        <ul class="deliverable-list">
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">GHL Account Setup</span><span class="d-desc">Pipeline, tags, calendar (2-3 day booking window)</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Lead Capture Page</span><span class="d-desc">6-step qualifying form with smart tags</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Landing Page</span><span class="d-desc">VSSL with chapters + GHL calendar</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Basic Confirmation Page</span><span class="d-desc">Confirmation video + testimonials (no breakout videos)</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Pre-Booking Emails</span><span class="d-desc">5 emails to drive non-bookers to book</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">WhatsApp Non-Booker Nudge</span><span class="d-desc">4-message automated sequence</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">WhatsApp Booked Reminders</span><span class="d-desc">3 messages (confirmation + 24h + 1h)</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">Meta Pixel Events</span><span class="d-desc">Lead + Schedule events firing to Meta</span></li>
+                            <li><span class="d-icon included">&#10003;</span><span class="d-label">End-to-End Testing</span><span class="d-desc">Full flow tested before go-live</span></li>
+                            <li class="excluded"><span class="d-icon excluded">&times;</span><span class="d-label">Research Hub Page</span><span class="d-desc">Upgrade to full breakout video confirmation page</span><span class="d-tag full-only">FULL SYSTEM</span></li>
+                            <li class="excluded"><span class="d-icon excluded">&times;</span><span class="d-label">8 Breakout Video Scripts</span><span class="d-desc">Custom scripts for pre-call objection handling</span><span class="d-tag full-only">FULL SYSTEM</span></li>
+                            <li class="excluded"><span class="d-icon excluded">&times;</span><span class="d-label">6 Post-Booking Emails</span><span class="d-desc">Research email sequence between booking and call</span><span class="d-tag full-only">FULL SYSTEM</span></li>
+                            <li class="excluded"><span class="d-icon excluded">&times;</span><span class="d-label">Sales Rep Protocol</span><span class="d-desc">Selfie video scripts + trust asset playbook</span><span class="d-tag full-only">FULL SYSTEM</span></li>
+                            <li class="excluded"><span class="d-icon excluded">&times;</span><span class="d-label">Long-Term Follow-Up</span><span class="d-desc">8-week WhatsApp reengagement for cold leads</span><span class="d-tag full-only">FULL SYSTEM</span></li>
+                            <li class="excluded"><span class="d-icon excluded">&times;</span><span class="d-label">Pixel Conditioning + CAPI</span><span class="d-desc">Advanced ad signal optimization</span><span class="d-tag full-only">FULL SYSTEM</span></li>
+                        </ul>
+                    </div>
+                    <div class="price-summary">
+                        <div><span class="price-big">$800</span><span class="price-period">&ensp;one-time</span></div>
+                        <div class="price-note">9 deliverables. A solid GHL funnel with email + WhatsApp automation. Delivered in 10 days.</div>
+                    </div>
+                    <div style="text-align: center; margin-top: 16px;">
+                        <div style="display: inline-block; background: var(--blue-light); border-radius: 8px; padding: 12px 24px;"><p style="font-size: 14px; color: var(--blue); margin: 0;"><strong>Guarantee:</strong> Not live and working in 10 days? You pay $0.</p></div>
+                        <div style="margin-top: 12px;"><p style="font-size: 13px; color: var(--text-muted);">The Research Hub upgrade ($700) can be added later once you see booking data.</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 7 — TIMELINE
+         ================================================================ -->
+    <div class="slide" data-slide="7">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">How Fast We Move</p><h2 style="margin-bottom: 48px;">Live in 10 Days</h2></div>
+            <div class="timeline animate-in">
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Day 1-2</div><div class="timeline-title">Setup</div><div class="timeline-desc">GHL account, pipeline, tags, calendar (2-3 day window), forms, pixel events configured.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Day 3-5</div><div class="timeline-title">Build Pages &amp; Emails</div><div class="timeline-desc">Lead capture + landing + confirmation pages built. Pre-booking and post-booking email sequences written and configured.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Day 6-8</div><div class="timeline-title">Automation &amp; Flows</div><div class="timeline-desc">WhatsApp flows connected. Sales rep protocol documented. Traffic sources linked. Pixel verified.</div></div>
+                <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-week">Day 9-10</div><div class="timeline-title">Test &amp; Go Live</div><div class="timeline-desc">End-to-end flow tested: form &rarr; landing &rarr; booking &rarr; confirmation &rarr; emails &rarr; WhatsApp &rarr; call. Switch over from ClickFunnels.</div></div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in text-center"><p style="font-size: 15px; color: var(--text-secondary);">Progress updates on <strong>Day 3</strong>, <strong>Day 6</strong>, and <strong>Day 9</strong>. You always know where things stand.</p></div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 8 — WHAT WE NEED FROM YOU
+         ================================================================ -->
+    <div class="slide" data-slide="8">
+        <div class="slide-inner">
+            <div class="animate-in"><p class="label" style="margin-bottom: 12px;">Your Part</p><h2 style="margin-bottom: 40px;">4 Things We Need<br><span class="serif">From You</span></h2></div>
+            <div class="card-grid cols-2 animate-in">
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 36px; margin-bottom: 12px;">&#127909;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">Your Training Video</h3>
+                    <p style="font-size: 14px;">The 15-18 min strategy video you already have. We embed it on the landing page.</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 36px; margin-bottom: 12px;">&#127912;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">Logo &amp; Brand Colors</h3>
+                    <p style="font-size: 14px;">High-res logo and hex codes. We match everything to your brand.</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 36px; margin-bottom: 12px;">&#128273;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">GHL Account Access</h3>
+                    <p style="font-size: 14px;">You sign up ($97/mo). We build everything inside your account. You own it all.</p>
+                </div>
+                <div class="card" style="text-align: center;">
+                    <div style="font-size: 36px; margin-bottom: 12px;">&#127908;</div>
+                    <h3 style="font-size: 17px; margin-bottom: 8px;">8 Short Videos</h3>
+                    <p style="font-size: 14px;">From scripts we write. 1-2 min each. ~15 minutes total recording. <span style="color: var(--text-muted); font-size: 12px;">(Full System only)</span></p>
+                </div>
+            </div>
+            <div class="spacer-24"></div>
+            <div class="animate-in text-center"><div class="card" style="display: inline-block; background: var(--bg);"><p style="font-size: 15px; color: var(--text-secondary); margin: 0;"><strong>That&rsquo;s it.</strong>&ensp;Zero technical work on your end. You provide assets, we do literally everything else.</p></div></div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         SLIDE 9 — CLOSING
+         ================================================================ -->
+    <div class="slide" data-slide="9">
+        <div class="slide-inner text-center">
+            <div class="animate-in"><p class="label" style="margin-bottom: 32px;">Small Group</p></div>
+            <div class="animate-in"><h1 style="margin-bottom: 24px;">Let&rsquo;s Fix Your<br><span class="serif" style="font-weight: 600;">Show Rate</span></h1></div>
+            <div class="animate-in"><p class="subtitle" style="max-width: 600px; margin: 0 auto;">One system. 10 days. 65%+ show rate.<br>You pick the option that fits.</p></div>
+            <div class="spacer-48"></div>
+            <div class="animate-in">
+                <div style="display: inline-flex; gap: 16px; flex-wrap: wrap; justify-content: center;">
+                    <div class="card" style="text-align: center; min-width: 200px; border: 2px solid var(--accent);"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Full System</p><p style="font-size: 20px; font-weight: 800;">$1,500</p><p style="font-size: 12px; color: var(--green);">15 deliverables</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Core System</p><p style="font-size: 20px; font-weight: 800;">$800</p><p style="font-size: 12px; color: var(--blue);">9 deliverables</p></div>
+                    <div class="card" style="text-align: center; min-width: 200px;"><p style="font-size: 13px; color: var(--text-muted); margin-bottom: 4px;">Go Live</p><p style="font-size: 20px; font-weight: 800;">10 Days</p><p style="font-size: 12px; color: var(--text-muted);">from receiving assets</p></div>
+                </div>
+            </div>
+            <div class="spacer-32"></div>
+            <div class="animate-in"><p style="font-size: 15px; color: var(--text-muted);">You own everything. Accounts, pages, emails, automations &mdash; all yours regardless.</p></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- NAVIGATION BAR -->
+<nav class="nav-bar">
+    <div class="nav-brand">Small Group</div>
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn" aria-label="Previous slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <span class="nav-counter" id="counter">1 / 9</span>
+        <button class="nav-btn" id="nextBtn" aria-label="Next slide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg></button>
+    </div>
+</nav>
+
+<script>
+    /* ── Slide Navigation ── */
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('counter');
+    const progressBar = document.getElementById('progressBar');
+    const total = slides.length;
+    let current = 0;
+
+    function revealChildren(slide) {
+        const items = slide.querySelectorAll('.animate-in');
+        items.forEach((el, i) => { el.classList.remove('visible'); void el.offsetHeight; setTimeout(() => { el.classList.add('visible'); }, 50 + i * 70); });
+    }
+    function hideChildren(slide) { slide.querySelectorAll('.animate-in').forEach(el => { el.classList.remove('visible'); }); }
+    function goTo(index) {
+        if (index < 0 || index >= total || index === current) return;
+        const goingForward = index > current;
+        hideChildren(slides[current]);
+        slides[current].classList.remove('active', 'prev');
+        if (goingForward) slides[current].classList.add('prev');
+        current = index;
+        slides[current].classList.remove('prev');
+        slides[current].classList.add('active');
+        revealChildren(slides[current]);
+        counter.textContent = `${current + 1} / ${total}`;
+        progressBar.style.width = `${((current + 1) / total) * 100}%`;
+    }
+    function next() { goTo(current + 1); }
+    function prev() { goTo(current - 1); }
+    document.getElementById('nextBtn').addEventListener('click', next);
+    document.getElementById('prevBtn').addEventListener('click', prev);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); goTo(0); }
+        if (e.key === 'End') { e.preventDefault(); goTo(total - 1); }
+    });
+    let touchStartX = 0;
+    document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+    document.addEventListener('touchend', (e) => { const diff = touchStartX - e.changedTouches[0].clientX; if (Math.abs(diff) > 50) { diff > 0 ? next() : prev(); } });
+    slides[0].classList.add('active');
+    revealChildren(slides[0]);
+    counter.textContent = `1 / ${total}`;
+    progressBar.style.width = `${(1 / total) * 100}%`;
+
+    /* ── Pricing Toggle ── */
+    function showPricing(tier) {
+        document.getElementById('pricing-full').classList.toggle('hidden', tier !== 'full');
+        document.getElementById('pricing-core').classList.toggle('hidden', tier !== 'core');
+        document.getElementById('btn-full').classList.toggle('active', tier === 'full');
+        document.getElementById('btn-core').classList.toggle('active', tier === 'core');
+    }
+</script>
+</body>
+</html>
